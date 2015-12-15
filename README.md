@@ -1,4 +1,5 @@
-__Pac-Man - Just another implementation of the classic game__
+__Pac-Man__
+__Just another implementation of the classic game__
 
 This is an implementation of Pac-Man in the latest web technologies. The game is implemented using the HTML5 Canvas. The program logic is kept in pure JavaScript.
 
@@ -14,4 +15,5 @@ This project is in development! Commits are expected to always be able to run, b
 I am developing currently because of the performance on Google Chrome, but hope to have the game run stably at a later date on other browsers.
 
 
-__Important Note:__ _Even it is just pure JavaScript, the game has to run on a web server, like Apache. JavaScript has strict security rules for using images and image data in the HTML5 canvas, so that a web server is needed._
+__Important Note:__ 
+_Even it is just pure JavaScript, the game has to run on a web server, like Apache. JavaScript has strict security rules for using images and image data in the HTML5 canvas, so that a web server is needed._
