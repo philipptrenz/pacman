@@ -12,3 +12,6 @@ This game is created in the course of my studies. My aim is to the game as possi
 This project is in development! Commits are expected to always be able to run, but until the release (no later than mid-February 2016) will run all not very good.
 
 I am developing currently because of the performance on Google Chrome, but hope to have the game run stably at a later date on other browsers.
+
+
+Important Note: Even it is just pure JavaScript, the game has to run on a web server, like Apache. JavaScript has strict security rules for using images and image data in the HTML5 canvas, so that a web server is needed.
