@@ -3,9 +3,9 @@ var canvas = null;
 var ctx = null;
 
 var backgroundImage = [new Image(), new Image(), new Image()];
-backgroundImage[0].src = 'img/grid0.png';
-backgroundImage[1].src = 'img/grid1.png';
-backgroundImage[2].src = 'img/grid2.png';
+backgroundImage[0].src = 'img/grid/grid0.png';
+backgroundImage[1].src = 'img/grid/grid1.png';
+backgroundImage[2].src = 'img/grid/grid2.png';
 
 var pacmanImage = new Array();
 var pacmanAnimation = 0;
@@ -25,10 +25,12 @@ var ghostMoved = new Array();
 
 var characterSize;
 
-var speed = 80;		// game speed in percent
-var fps = 40;
+const speed = 80;		// game speed in percent
+const fps = 25;
 
-var level = 0;		// the game level, 0 - 2
+var level = 2;		// the game level
+const lastLevel = 2;
+
 var life = 3;		// lives get reduced if ghost touches pacman.
 
 /*
@@ -39,7 +41,6 @@ var borders;
 var dots;
 
 var dotCounter = 0;
-var maxDots;
 
 /*
  * defines in which direction Pacman will move next.
@@ -101,7 +102,7 @@ function initial() {
 }
 
 function logic() {
-	if (maxDots > 0 && dotCounter == maxDots) {
+	if (dotCounter == 0) {
 		clearInterval(interval);	// break out of loop
 		nextLevel();
 	}
@@ -109,13 +110,7 @@ function logic() {
 	movePlayer();
 	moveGhosts();
 
-	// ghost hit
-	for (var i = 0; i < ghost.length; i++) {
-		if (player.x == ghost[i].x && player.y == ghost[i].y) {
-			clearInterval(interval);	// break out of loop
-			cought();
-		}
-	}
+	coughtDetection();
 }
 
 var now;
@@ -156,7 +151,6 @@ function draw() {
 	    	0, 0, canvas.width, canvas.height);
 
 		drawPacman();
-
 		drawGhosts();
 
 		// draw dots
@@ -238,7 +232,6 @@ function drawPacman() {
     ctx.restore();
 }
 
-var ghostStep = [];
 function drawGhosts() {
 	// draw ghosts
 	for (var i = 0; i < ghost.length; i++) {
@@ -292,13 +285,14 @@ function movePlayer() {
 	}
 
 	if (dots[player.x][player.y]) {
-		dotCounter++;
+		dotCounter--;
 		dots[player.x][player.y] = false;
 	}
 }
 
 function moveGhosts() {
 
+	// ghost1 and ghost2
 	for (var i = 0; i < ghost.length; i++) {
 		// border collision detection
 		var ok = [null, 
@@ -325,6 +319,7 @@ function moveGhosts() {
 		}
 	}
 }
+
 
 /*
  * Fill borders array.
@@ -359,7 +354,7 @@ function getBorders() {
 }
 
 function createDots() {
-	var dotCount = 0;
+	var tempDotCounter = 0;
 
 	dots = new Array();
 	var w = 0, h = 0;
@@ -369,12 +364,12 @@ function createDots() {
 		for (h; h < grid.y; h++) {
 			if (!borders[w][h]) {
 				dots[w][h] = true;
-				dotCount++;
+				tempDotCounter++;
 			}
 		}
 		h = 0;
 	}
-	maxDots = dotCount;
+	dotCounter = tempDotCounter;
 }
 
 function getPixelCenter(x, y) {
@@ -412,8 +407,21 @@ function nextLevel() {
 	maxDots = null;
 
 	level++;
+	if (level > lastLevel) {
+		gameover();
+	}
 
 	initial();
+}
+
+function coughtDetection() {
+	// pacman gets cought
+	for (var i = 0; i < ghost.length; i++) {
+		if (player.x == ghost[i].x && player.y == ghost[i].y) {
+			clearInterval(interval);	// break out of loop
+			cought();
+		}
+	}
 }
 
 function cought() {
@@ -435,14 +443,20 @@ function cought() {
 	}
 }
 
+
+
 function gameover() {
-		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
-		direction = 0;
-		player = null;
-		borders = null;
-		dots = null;
-		dotCounter = null;
-		alert("Game Over");
+
+	var message = "Game Over";
+	if (level > lastLevel) message+="\nSie haben gewonnen!"
+
+	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+	direction = 0;
+	player = null;
+	borders = null;
+	dots = null;
+	dotCounter = null;
+	alert(message);
 }
 
 
