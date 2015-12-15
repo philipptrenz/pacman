@@ -1,0 +1,410 @@
+
+var canvas = null;
+var ctx = null;
+
+var backgroundImage = [new Image(), new Image(), new Image()];
+backgroundImage[0].src = 'img/grid0.png';
+backgroundImage[1].src = 'img/grid1.png';
+backgroundImage[2].src = 'img/grid2.png';
+
+var pacmanImage = new Array();
+var pacmanAnimation = 0;
+
+var ghostImage = [new Image(), new Image(), new Image()];
+ghostImage[0].src = 'img/ghost0.png';
+ghostImage[1].src = 'img/ghost1.png';
+ghostImage[2].src = 'img/ghost2.png';
+
+var grid = {"x": 20, "y": 15};
+
+var player;
+var playerMoved = false;
+var playerPrev;
+var ghost = new Array();
+
+var figureSize;
+
+var speed = 80;		// game speed in percent
+
+var level = 1;		// the game level, 0 - 2
+var life = 3;		// lives get reduced if ghost touches pacman.
+
+/*
+ * This variable contains an boolean two dimensional array like borders[x][y],
+ * It contains, if on the position on the grid is a border or not.
+ */
+var borders;
+var dots;
+
+var dotCounter = 0;
+var maxDots;
+
+/*
+ * defines in which direction Pacman will move next.
+ * 0 means stop, 1 means up, 2 is right, 3 is down and 4 is left.
+ */
+var direction = 0;
+
+function initial() {
+	
+	canvas = document.getElementById("game");
+    ctx = canvas.getContext("2d");
+
+
+	pacmanX = 20;
+    pacmanY = canvas.height/2;
+
+    figureSize = (canvas.width/grid.x)*0.9;
+
+    /* --------------------------------- */
+    for (var i = 0; i < 10; i++) {
+    	pacmanImage[i] = new Image();
+    	var att;
+    	var corr;
+    	if (i < 5) {
+    		att = "r";
+    		corr = 0;
+    	} else {
+    		att = "l";
+    		corr = 5;
+    	}
+    	pacmanImage[i].src = "img/pacman/pacman"+(i-corr)+att+".png";
+    }
+
+
+    // define start position of pacman
+    player = {"x": 1, "y": 7};
+    playerPrev = {"x": player.x, "y": player.y};
+
+    // define start position of ghosts
+    ghost = [{"x": 7, "y": 7},{"x": 9, "y": 7},{"x": 11, "y": 7}]; // make random later
+    ghostPrev = ghost;
+
+    // generate level
+    ctx.drawImage(backgroundImage[level], 
+    	0, 0, backgroundImage[level].width, backgroundImage[level].height, 
+    	0, 0, canvas.width, canvas.height);
+
+    getBorders();
+    createDots();
+
+    // start logic iteration
+    interval = setInterval(logic, getInterval());
+
+    // Start animation
+    window.requestAnimationFrame(painting);
+}
+
+function logic() {
+	if (maxDots > 0 && dotCounter == maxDots) {
+		clearInterval(interval);	// break out of loop
+		nextLevel();
+	}
+
+	movePlayer();
+	moveGhosts();
+
+	// ghost hit
+	for (var i = 0; i < ghost.length; i++) {
+		if (player.x == ghost[i].x && player.y == ghost[i].y) {
+			clearInterval(interval);	// break out of loop
+			cought();
+		}
+	}
+}
+
+function painting() {
+
+	ctx.globalCompositeOperation = 'destination-over';
+	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+	// draw backgroundImage
+	
+	ctx.drawImage(backgroundImage[level], 
+    	0, 0, backgroundImage[level].width, backgroundImage[level].height, 
+    	0, 0, canvas.width, canvas.height);
+	
+	ctx.save();
+
+	drawPacman();
+	
+    ctx.restore();
+
+	// draw ghosts
+	for (var i = 0; i < ghost.length; i++) {
+		var ghostPos = getPixelCenter(ghost[i].x, ghost[i].y); 
+		ctx.drawImage(ghostImage[i], ghostPos.x-(figureSize/2), ghostPos.y-(figureSize/2), figureSize, figureSize);
+	}
+
+    // draw dots
+    for (var w = 0; w < grid.x; w++) {
+		for (var h = 0; h < grid.y; h++) {
+			if (dots[w][h]) {
+				dot = getPixelCenter(w, h);
+				ctx.beginPath();
+			    ctx.arc(dot.x, dot.y, figureSize*0.15, 0, 2 * Math.PI);
+			    ctx.fillStyle = '#cccccc';
+			    ctx.fill();
+			}
+		}
+		h = 0;
+	}
+
+	// do it again and again and again ...
+	window.requestAnimationFrame(painting);
+}
+
+
+var pacmanSteps = pacmanMaxSteps;
+var pacmanMaxSteps = Math.abs(1000/getInterval());
+
+function drawPacman() {
+	
+	// change direction of pacman
+    if (direction == 4 && pacmanAnimation < 5) {
+    	pacmanAnimation = pacmanAnimation+5;
+    } else if (direction == 2 && pacmanAnimation > 4) {
+    	pacmanAnimation = pacmanAnimation-5;
+    }
+
+    // animate mouth
+    if (pacmanAnimation == 4 || pacmanAnimation == 9) pacmanAnimation -= 5;
+    pacmanAnimation++;
+    
+    // draw Pacman
+	var pos = getPixelCenter(player.x, player.y);
+
+    // if pacman has moved
+	var factor = 0;
+	var animation = false;
+	if (playerMoved) {
+		playerMoved = false;
+		animation = true;
+		pacmanSteps = 1;
+		factor = 0;
+	}
+	if (animation) {
+		factor = pacmanSteps/pacmanMaxSteps;
+		pacmanSteps++;
+		if (direction == 1) {
+	    	ctx.translate(0,-factor);
+	    } else if (direction == 2) {
+	    	ctx.translate(factor,0);
+	    } else if (direction == 3) {
+	    	ctx.translate(0,factor);
+	    } else if (direction == 4) {
+	    	ctx.translate(-factor,0);
+	    }
+		if (pacmanSteps >= pacmanMaxSteps) animation = false;
+	}
+
+   	// draw pacman
+    ctx.drawImage(pacmanImage[pacmanAnimation], pos.x-(figureSize/2), pos.y-(figureSize/2), figureSize, figureSize);
+   
+}
+
+
+function movePlayer() {
+	playerPrev = {"x": player.x, "y": player.y};
+
+    // navigate with keys
+	if (direction == 1) {
+		if (player.y-1 > 0) {
+			var temp = borders[player.x][player.y-1];
+			if (!temp) {
+				player.y--;
+				playerMoved = true;
+			}
+		}
+	} else if (direction == 2) {
+		if (player.x+1 < grid.x) {
+			var temp = borders[player.x+1][player.y];
+			if (!temp) {
+				player.x++;
+				playerMoved = true;
+			}
+		}
+	} else if (direction == 3) {
+		if (player.y+1 < grid.y) {
+			var temp = borders[player.x][player.y+1];
+			if (!temp) {
+				player.y++;
+				playerMoved = true;
+			}
+		}
+	} else if (direction == 4) {
+		if (player.x-1 > 0) {
+			var temp = borders[player.x-1][player.y];
+			if (!temp) {
+				player.x--;
+				playerMoved = true;
+			}
+		}
+	}
+
+	if (dots[player.x][player.y]) {
+		dotCounter++;
+		dots[player.x][player.y] = false;
+	}
+}
+
+function moveGhosts() {
+
+	for (var i = 0; i < ghost.length; i++) {
+		// border collision detection
+		var ok = [null, 
+			!borders[ghost[i].x][ghost[i].y+1], 
+			!borders[ghost[i].x+1][ghost[i].y],
+			!borders[ghost[i].x][ghost[i].y-1],
+			!borders[ghost[i].x-1][ghost[i].y]
+		];
+
+		// do the movement
+		while (!ok[ghostDirection]) {
+			var ghostDirection = Math.floor(Math.random()*4)+1;
+			if (ok[ghostDirection]) {
+				if (ghostDirection == 1) {
+					ghost[i].y++;
+				} else if (ghostDirection == 2) {
+					ghost[i].x++;
+				} else if (ghostDirection == 3) {
+					ghost[i].y--;
+				} else if (ghostDirection == 4) {
+					ghost[i].x--;
+				}
+			}
+		}
+	}
+}
+
+/*
+ * Fill borders array.
+ * Test if picture is transparent or not on a specific position,
+ * if not transparent its a border.
+ */
+function getBorders() {
+	borders = new Array();
+
+	var pixelX = canvas.width/grid.x;	// width of one pixel in the grid
+	var pixelY = canvas.height/grid.y;	// height of one pixel in the grid
+
+	var startPixelX = pixelX/2;	// for beginning the first x-position is middel of the first grid-pixel in x
+	var startPixelY = pixelY/2;	// for beginning the first x-position is middel of the first grid-pixel in y
+	
+	var x = startPixelX;
+	var y = startPixelY;
+
+	var w = 0, h = 0;
+
+	for (w; w < grid.x; w++) {
+		borders[w] = new Array();
+
+		for (h; h < grid.y; h++) {
+			borders[w][h] = ctx.getImageData(x,y,1,1).data[3] != 0;	// test if transparency of grid image, if != 0 its a border
+			y += pixelY;	// go to next horizontal pixel
+		}
+		h = 0;
+		y = startPixelY;	// reset horizontal pixel for next row
+		x += pixelX;		// go to next pixel row
+	}
+}
+
+function createDots() {
+	var dotCount = 0;
+
+	dots = new Array();
+	var w = 0, h = 0;
+	for (w; w < grid.x; w++) {
+		dots[w] = new Array();
+
+		for (h; h < grid.y; h++) {
+			if (!borders[w][h]) {
+				dots[w][h] = true;
+				dotCount++;
+			}
+		}
+		h = 0;
+	}
+	maxDots = dotCount;
+}
+
+function getPixelCenter(x, y) {
+	var pixelX = x*(canvas.width/grid.x)+((canvas.width/grid.x)/2);
+	var pixelY = y*(canvas.height/grid.y)+((canvas.height/grid.y)/2);
+	return {"x": pixelX, "y": pixelY};
+}
+
+/*
+ * Set interval for logic iteration
+ */
+function getInterval() {
+	// linear function f(x)=-7x+750
+	return 750-(7*speed);
+}
+
+function nextLevel() {
+	alert("Herzlichen Glückwunsch! \nSie haben Level "+(level+1)+" geschafft!");
+
+	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+	direction = 0;
+	player = null;
+	borders = null;
+	dots = null;
+	dotCounter = null;
+	maxDots = null;
+
+	level++;
+
+	initial();
+}
+
+function cought() {
+	if (life == 1) {
+		gameover();
+	} else {
+		life--;
+
+		alert("Erwischt! \nEs verbleiben Ihnen "+life+" Leben.");
+
+		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+		direction = 0;
+		player = null;
+		borders = null;
+		dots = null;
+		dotCounter = null;
+
+		initial();
+	}
+}
+
+function gameover() {
+		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+		direction = 0;
+		player = null;
+		borders = null;
+		dots = null;
+		dotCounter = null;
+		alert("Game Over");
+}
+
+
+window.onload = function() {
+	initial();
+};
+
+document.onkeydown = changeDirection;
+function changeDirection(e) {
+	var key  = e.keyCode || e.which;
+
+	if (key == 38) {
+		direction = 1;
+	}
+	if (key == 39) {
+		direction = 2;
+	}
+	if (key == 40) {
+		direction = 3;
+	}
+	if (key == 37) {
+		direction = 4;
+	}
+}

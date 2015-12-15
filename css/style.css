@@ -1,0 +1,22 @@
+* {
+	color: white;
+}
+
+body {
+	background-color: black;
+}
+
+h3 {
+	font-size: 1.4em;
+	padding-bottom: 25px
+}
+
+#wrapper {
+	padding: 25px 25px 0;
+}
+
+#game {
+	display: block; 
+
+	background-color: white;
+}
