@@ -1,5 +1,4 @@
-__Pac-Man__
-__Just another implementation of the classic game__
+__Pac-Man - Just another implementation of the classic game__
 
 This is an implementation of Pac-Man in the latest web technologies. The game is implemented using the HTML5 Canvas. The program logic is kept in pure JavaScript.
 
