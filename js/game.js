@@ -25,6 +25,8 @@ var ghostMoved = new Array();
 
 var characterSize;
 
+var running = false;
+
 const speed = 80;		// game speed in percent
 const fps = 25;
 
@@ -52,10 +54,10 @@ var direction = 0;
  * This initializes the game.
  */
 function initial() {
+	running = true;
 	
 	// get canvas
 	canvas = document.getElementById("game");
-
 
 	// get canvas context
     ctx = canvas.getContext("2d");
@@ -106,41 +108,70 @@ function initial() {
  * This method handles the logic part of the game.
  */
 function logic() {
-	if (dotCounter == 0) {
-		clearInterval(interval);	// break out of loop
-		nextLevel();
+
+	if (running) {
+		if (dotCounter == 0) {
+			clearInterval(interval);	// break out of loop
+			nextLevel();
+		}
+
+		movePlayer();
+		moveGhosts();
+
+		coughtDetection();
 	}
-
-	movePlayer();
-	moveGhosts();
-
-	coughtDetection();
 }
 
 var now;
 var then = Date.now();
-var intervall_frame = 1000/fps;
+var interval_frame = 1000/fps;
 var delta;
 
 /*
  * This method handles the whole view site of the game.
  */
-function draw() {     
+function draw() {  
     requestAnimationFrame(draw);
      
     now = Date.now();
     delta = now - then;
      
-    if (delta > intervall_frame) {
+    if (delta > interval_frame) {
 
         // update time stuffs     
-        then = now - (delta % interval);
+        then = now - (delta % interval_frame);
 
         /* -------- CODE --------- */
-         
-		ctx.globalCompositeOperation = 'destination-over';
-		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+
+       	ctx.globalCompositeOperation = 'destination-over';
+		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas 
 		// draw backgroundImage
+
+		// game is paused
+		if (!running) {
+			ctx.save();
+
+			ctx.beginPath();
+
+			// text
+			// font-family: Montserrat,'Helvetica Neue',Helvetica,Arial,sans-serif;
+            ctx.beginPath();
+			ctx.font = "normal normal 700 6em Montserrat";
+			ctx.fillStyle="#ffffff";
+			ctx.fillText("PAUSED", canvas.width/2, canvas.heigth/2);
+
+			ctx.closePath();
+			ctx.beginPath();
+			
+			// overlay
+			ctx.fillStyle="rgba(44,62,80,0.8)";
+			ctx.fillRect(0,0,canvas.width, canvas.height);
+
+			ctx.closePath();
+
+			ctx.restore();
+		} 
+		
 		
 		ctx.drawImage(backgroundImage[level], 
 	    	0, 0, backgroundImage[level].width, backgroundImage[level].height, 
@@ -161,7 +192,8 @@ function draw() {
 				}
 			}
 			h = 0;
-		}
+		}	
+		
     }
 }
 
@@ -182,10 +214,6 @@ function drawPacman() {
     } else if (direction == 2 && pacmanAnimation > 4) {
     	pacmanAnimation = pacmanAnimation-5;
     }
-
-    // animate mouth
-    if (pacmanAnimation == 4 || pacmanAnimation == 9) pacmanAnimation -= 5;
-    pacmanAnimation++;
     
 	if (playerMoved) {
 		animate = true;
@@ -196,7 +224,12 @@ function drawPacman() {
 	// get position
 	var pos;
 
-	if (animate) {	// könnte auch entfernt werden, höchstens um ressourcen zu schonen sinnvoll
+	if (animate) { 
+
+		 // animate mouth
+	    if (pacmanAnimation == 4 || pacmanAnimation == 9) pacmanAnimation -= 5;
+	    pacmanAnimation++;
+
 		// step in grid
 		var step = pacmanStep/getFramesPerInterval();
 		// step in pixel
@@ -489,6 +522,8 @@ function gameover() {
 	dots = null;
 	dotCounter = null;
 	alert(message);
+
+	running = false;
 }
 
 /*
@@ -506,16 +541,29 @@ function changeDirection(e) {
 	
 	var key  = e.keyCode || e.which;
 
-	if (key == 38) {
-		direction = 1;
+	if (running) {
+		if (key == 38) {
+			direction = 1;
+		}
+		if (key == 39) {
+			direction = 2;
+		}
+		if (key == 40) {
+			direction = 3;
+		}
+		if (key == 37) {
+			direction = 4;
+		}
 	}
-	if (key == 39) {
-		direction = 2;
+	
+	if (key == 32) {
+		// prevent default action on space bar permanent
+		e.preventDefault();
+
+		// toggle running
+		running = !running
 	}
-	if (key == 40) {
-		direction = 3;
-	}
-	if (key == 37) {
-		direction = 4;
-	}
+
+	// disable scrolling via arrow keys and all other default functions of the keyboard
+	if (running) e.preventDefault();
 }
