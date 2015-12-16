@@ -1,22 +1,47 @@
 * {
 	color: white;
+	font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+	font-weight: 300;
 }
 
 body {
 	background-color: black;
 }
 
-h3 {
-	font-size: 1.4em;
+h1 {
+	font-size: 1.6em;
 	padding-bottom: 25px
 }
 
+a {
+	text-decoration: none;
+	font-weight: 400;
+}
+
+.fa {
+	font-size: 2em;
+}
+
 #wrapper {
-	padding: 25px 25px 0;
+	width: 60%;
+	padding: 25px;
 }
 
 #game {
-	display: block; 
+	width: 100%;
 
-	background-color: white;
+	padding-bottom: 15px;
+
+	display: block; 
+	background-color: black;
+}
+
+.left {
+	float: left;
+	padding-right: 10px;
+}
+
+.right {
+	float: right;
+	padding-left: 10px;
 }

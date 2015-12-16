@@ -28,7 +28,7 @@ var characterSize;
 const speed = 80;		// game speed in percent
 const fps = 25;
 
-var level = 2;		// the game level
+var level = 0;		// the game level
 const lastLevel = 2;
 
 var life = 3;		// lives get reduced if ghost touches pacman.
@@ -48,15 +48,17 @@ var dotCounter = 0;
  */
 var direction = 0;
 
+/*
+ * This initializes the game.
+ */
 function initial() {
+	
 	// get canvas
 	canvas = document.getElementById("game");
+
+
 	// get canvas context
     ctx = canvas.getContext("2d");
-
-
-	pacmanX = 20;
-    pacmanY = canvas.height/2;
 
     characterSize = (canvas.width/grid.x)*0.9;
 
@@ -97,10 +99,12 @@ function initial() {
     interval = setInterval(logic, getInterval());
 
     // Start animation
-    //window.requestAnimationFrame(painting);
     draw();
 }
 
+/*
+ * This method handles the logic part of the game.
+ */
 function logic() {
 	if (dotCounter == 0) {
 		clearInterval(interval);	// break out of loop
@@ -117,7 +121,10 @@ var now;
 var then = Date.now();
 var intervall_frame = 1000/fps;
 var delta;
-  
+
+/*
+ * This method handles the whole view site of the game.
+ */
 function draw() {     
     requestAnimationFrame(draw);
      
@@ -125,19 +132,8 @@ function draw() {
     delta = now - then;
      
     if (delta > intervall_frame) {
-        // update time stuffs
-         
-        // Just `then = now` is not enough.
-        // Lets say we set fps at 10 which means
-        // each frame must take 100ms
-        // Now frame executes in 16ms (60fps) so
-        // the loop iterates 7 times (16*7 = 112ms) until
-        // delta > interval === true
-        // Eventually this lowers down the FPS as
-        // 112*10 = 1120ms (NOT 1000ms).
-        // So we have to get rid of that extra 12ms
-        // by subtracting delta (112) % interval (100).
-         
+
+        // update time stuffs     
         then = now - (delta % interval);
 
         /* -------- CODE --------- */
@@ -169,9 +165,13 @@ function draw() {
     }
 }
 
-
 var pacmanStep;
 var animate = false;
+
+
+/*
+ * This function draws pacman depending on the grid position and also animates him.
+ */
 function drawPacman() {
 
 	ctx.save();	// this lets just affect the translation to the following things
@@ -182,8 +182,6 @@ function drawPacman() {
     } else if (direction == 2 && pacmanAnimation > 4) {
     	pacmanAnimation = pacmanAnimation-5;
     }
-
-   
 
     // animate mouth
     if (pacmanAnimation == 4 || pacmanAnimation == 9) pacmanAnimation -= 5;
@@ -232,6 +230,9 @@ function drawPacman() {
     ctx.restore();
 }
 
+/*
+ * This method draws the ghosts to the canvas on their grid position.
+ */
 function drawGhosts() {
 	// draw ghosts
 	for (var i = 0; i < ghost.length; i++) {
@@ -246,6 +247,9 @@ function drawGhosts() {
 	}
 }
 
+/*
+ * This method handles the moving of pacman depending on the key events.
+ */ 
 function movePlayer() {
 	playerPrev = {"x": player.x, "y": player.y};
 
@@ -290,6 +294,9 @@ function movePlayer() {
 	}
 }
 
+/* 
+ * This method lets the ghosts move in the grid.
+ */
 function moveGhosts() {
 
 	// ghost1 and ghost2
@@ -353,6 +360,11 @@ function getBorders() {
 	}
 }
 
+
+/*
+ * This function sets one dot on every not-wall grid field
+ * all pixel get saved in dots.
+ */
 function createDots() {
 	var tempDotCounter = 0;
 
@@ -372,6 +384,10 @@ function createDots() {
 	dotCounter = tempDotCounter;
 }
 
+/*
+ * This function returns the acutual pixel position depending
+ * on the grid position.
+ */
 function getPixelCenter(x, y) {
 	var pixelX = x*(canvas.width/grid.x)+((canvas.width/grid.x)/2);
 	var pixelY = y*(canvas.height/grid.y)+((canvas.height/grid.y)/2);
@@ -379,7 +395,7 @@ function getPixelCenter(x, y) {
 }
 
 /*
- * Set interval for logic iteration
+ * Set interval for logic iteration, its an linear function.
  */
 function getInterval() {
 	// linear function f(x)=-7x+750
@@ -395,6 +411,11 @@ function getFramesPerInterval() {
 	return getInterval()*fps/1000;
 }
 
+/*
+ * This function is called after completing a level,
+ * it starts the next or stops the game if last level
+ * is reached.
+ */
 function nextLevel() {
 	alert("Herzlichen Glückwunsch! \nSie haben Level "+(level+1)+" geschafft!");
 
@@ -414,6 +435,11 @@ function nextLevel() {
 	initial();
 }
 
+/*
+ * This function tests if pacman get cought by a ghost by
+ * comparing the positions. Time when this method gets called
+ * is important for correct detection.
+ */
 function coughtDetection() {
 	// pacman gets cought
 	for (var i = 0; i < ghost.length; i++) {
@@ -424,6 +450,10 @@ function coughtDetection() {
 	}
 }
 
+/*
+ * This method handles if pacman get cought. It reduces the lifes,
+ * if theres none left gameover() gets called.
+ */
 function cought() {
 	if (life == 1) {
 		gameover();
@@ -443,8 +473,10 @@ function cought() {
 	}
 }
 
-
-
+/*
+ * Ths method ends the game, even in the positive (completed last level) or
+ * negative case (no life left).
+ */
 function gameover() {
 
 	var message = "Game Over";
@@ -459,27 +491,21 @@ function gameover() {
 	alert(message);
 }
 
-
+/*
+ * This function starts the whole game.
+ */
 window.onload = function() {
 	initial();
 };
 
+/*
+ * Handling the key events.
+ */
 document.onkeydown = changeDirection;
 function changeDirection(e) {
+	
 	var key  = e.keyCode || e.which;
-	/*
-	if (key == 38 && !borders[player.x][player.y-1]) {
-		direction = 1;
-	}
-	if (key == 39 && !borders[player.x+1][player.y]) {
-		direction = 2;
-	}
-	if (key == 40 && !borders[player.x][player.y+1]) {
-		direction = 3;
-	}
-	if (key == 37 && !borders[player.x-1][player.y]) {
-		direction = 4;
-	}*/
+
 	if (key == 38) {
 		direction = 1;
 	}
