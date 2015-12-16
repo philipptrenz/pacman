@@ -21,19 +21,19 @@ var player;
 var playerMoved = false;
 var playerPrev;
 var ghost = new Array();
-var ghostMoved = new Array();
 
 var characterSize;
 
 var running = false;
 
-const speed = 80;		// game speed in percent
+const speed = 5;		// game speed in percent
 const fps = 25;
 
 var level = 0;		// the game level
 const lastLevel = 2;
 
-var life = 3;		// lives get reduced if ghost touches pacman.
+const maxLifes = 3;
+var life = maxLifes;		// lives get reduced if ghost touches pacman.
 
 /*
  * This variable contains an boolean two dimensional array like borders[x][y],
@@ -85,9 +85,7 @@ function initial() {
     playerPrev = {"x": player.x, "y": player.y};
 
     // define start position of ghosts
-    ghost = [{"x": 7, "y": 7},{"x": 9, "y": 7},{"x": 11, "y": 7}]; // make random later
-    ghostPrev = ghost;
-    ghostMoved = [false, false, false];
+    ghost = [{"x": 7,"y": 7,"prevX": 7,"prevY":7},{"x":9,"y":7,"prevX":9,"prevY":7},{"x":11,"y": 7,"prevX":11,"prevY":7}]; // make random later
 
     // generate level
     ctx.drawImage(backgroundImage[level], 
@@ -153,6 +151,7 @@ function draw() {
 
 			ctx.beginPath();
 
+			/* Not yet functioning ...
 			// text
 			// font-family: Montserrat,'Helvetica Neue',Helvetica,Arial,sans-serif;
             ctx.beginPath();
@@ -161,6 +160,8 @@ function draw() {
 			ctx.fillText("PAUSED", canvas.width/2, canvas.heigth/2);
 
 			ctx.closePath();
+			*/
+
 			ctx.beginPath();
 			
 			// overlay
@@ -199,7 +200,6 @@ function draw() {
 
 var pacmanStep;
 var animate = false;
-
 
 /*
  * This function draws pacman depending on the grid position and also animates him.
@@ -263,15 +263,44 @@ function drawPacman() {
     ctx.restore();
 }
 
+var ghostStep = new Array();
 /*
  * This method draws the ghosts to the canvas on their grid position.
  */
 function drawGhosts() {
+
 	// draw ghosts
 	for (var i = 0; i < ghost.length; i++) {
 		ctx.save();	// this lets just affect the translation to the following things by saving the canvas and just manipulating the things down there
 
-		var ghostPos = getPixelCenter(ghost[i].x, ghost[i].y);
+		var ghostPos;
+
+		// step in grid
+		var step = ghostStep[i]/getFramesPerInterval();
+		
+		if (step < 1.2 && running) {
+
+			// step in pixel
+			var pixelStep = step*(canvas.width/grid.x);
+			// do it
+			if (ghost[i].y < ghost[i].prevY) {			// moved up
+		    	ctx.translate(0,-pixelStep);
+		    } else if (ghost[i].x > ghost[i].prevX) {	// moved right
+		    	ctx.translate(pixelStep,0);
+		    } else if (ghost[i].y > ghost[i].prevY) {	// moved down
+		    	ctx.translate(0,pixelStep);
+		    } else if (ghost[i].x < ghost[i].prevX) {	// moved left
+		    	ctx.translate(-pixelStep,0);
+		    }
+		    // count up for next frame
+		    ghostStep[i]++;
+
+			ghostPos = getPixelCenter(ghost[i].prevX, ghost[i].prevY);
+		} else {
+			ghostStep[i] = 1;
+			ghostPos = getPixelCenter(ghost[i].x, ghost[i].y);
+		}
+		
 
 		// draw 
 		ctx.drawImage(ghostImage[i], ghostPos.x-(characterSize/2), ghostPos.y-(characterSize/2), characterSize, characterSize);
@@ -334,6 +363,10 @@ function moveGhosts() {
 
 	// ghost1 and ghost2
 	for (var i = 0; i < ghost.length; i++) {
+
+		ghost[i].prevX = ghost[i].x;
+		ghost[i].prevY = ghost[i].y;
+
 		// border collision detection
 		var ok = [null, 
 			!borders[ghost[i].x][ghost[i].y+1], 
@@ -342,8 +375,9 @@ function moveGhosts() {
 			!borders[ghost[i].x-1][ghost[i].y]
 		];
 
+		var trys = 0;
 		// do the movement
-		while (!ok[ghostDirection]) {
+		do {
 			var ghostDirection = Math.floor(Math.random()*4)+1;
 			if (ok[ghostDirection]) {
 				if (ghostDirection == 1) {
@@ -356,7 +390,8 @@ function moveGhosts() {
 					ghost[i].x--;
 				}
 			}
-		}
+			trys++;
+		} while (!ok[ghostDirection]);
 	}
 }
 
@@ -450,7 +485,7 @@ function getFramesPerInterval() {
  * is reached.
  */
 function nextLevel() {
-	alert("Herzlichen Glückwunsch! \nSie haben Level "+(level+1)+" geschafft!");
+	alert("Congratulations! \nYou finished level "+(level+1)+"!");
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
@@ -459,6 +494,7 @@ function nextLevel() {
 	dots = null;
 	dotCounter = null;
 	maxDots = null;
+	lifes = maxLifes;
 
 	level++;
 	if (level > lastLevel) {
@@ -493,7 +529,7 @@ function cought() {
 	} else {
 		life--;
 
-		alert("Erwischt! \nEs verbleiben Ihnen "+life+" Leben.");
+		alert("You got cought! \nYou have "+life+" lifes left.");
 
 		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 		direction = 0;
@@ -513,7 +549,7 @@ function cought() {
 function gameover() {
 
 	var message = "Game Over";
-	if (level > lastLevel) message+="\nSie haben gewonnen!"
+	if (level > lastLevel) message+="\nYou win!"
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
@@ -521,9 +557,12 @@ function gameover() {
 	borders = null;
 	dots = null;
 	dotCounter = null;
+	level = 0;
+	running = false;
+
 	alert(message);
 
-	running = false;
+	initial();
 }
 
 /*
@@ -542,16 +581,16 @@ function changeDirection(e) {
 	var key  = e.keyCode || e.which;
 
 	if (running) {
-		if (key == 38) {
+		if (key == 38) {	// up
 			direction = 1;
-		}
-		if (key == 39) {
+		}	
+		if (key == 39) {	// right
 			direction = 2;
 		}
-		if (key == 40) {
+		if (key == 40) {	// down
 			direction = 3;
 		}
-		if (key == 37) {
+		if (key == 37) {	// left
 			direction = 4;
 		}
 	}
