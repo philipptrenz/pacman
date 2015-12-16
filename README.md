@@ -2,6 +2,8 @@ __Pac-Man - Just another implementation of the classic game__
 
 This is an implementation of Pac-Man in the latest web technologies. The game is implemented using the HTML5 Canvas. The program logic is kept in pure JavaScript.
 
+The last commit can be seen on [pacman.philipptrenz.de](http://pacman.philipptrenz.de)
+
 This game is created in a course of my studies. My aim is to make the game modular and scalable as possible (in every respect). This means inter alia:
 
 * The levels are generated from a background graphic
