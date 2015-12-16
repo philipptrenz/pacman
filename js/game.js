@@ -9,24 +9,26 @@ backgroundImage[2].src = 'img/grid/grid2.png';
 
 var pacmanImage = new Array();
 var pacmanAnimation = 0;
-
-var ghostImage = [new Image(), new Image(), new Image()];
-ghostImage[0].src = 'img/ghosts/ghost0.svg';
-ghostImage[1].src = 'img/ghosts/ghost1.svg';
-ghostImage[2].src = 'img/ghosts/ghost2.svg';
-
-var grid = {"x": 20, "y": 15};
-
 var player;
 var playerMoved = false;
 var playerPrev;
+var pacmanStep;
+var animate = false;
+
+
+var grid = {"x": 20, "y": 15};
+
+
+quantityOfGhosts = 3;
 var ghost = new Array();
+
+
 
 var characterSize;
 
 var running = false;
 
-const speed = 5;		// game speed in percent
+const speed = 50;		// game speed in percent
 const fps = 25;
 
 var level = 0;		// the game level
@@ -84,8 +86,16 @@ function initial() {
     player = {"x": 1, "y": 7};
     playerPrev = {"x": player.x, "y": player.y};
 
-    // define start position of ghosts
-    ghost = [{"x": 7,"y": 7,"prevX": 7,"prevY":7},{"x":9,"y":7,"prevX":9,"prevY":7},{"x":11,"y": 7,"prevX":11,"prevY":7}]; // make random later
+    for (var i = 0; i < quantityOfGhosts; i++) {
+    	ghost[i] = {"x": Math.round(grid.x/2),
+    				"y": Math.round(grid.y/2),
+    				"prevX": Math.round(grid.x/2),
+    				"prevY": Math.round(grid.y/2),
+    				"image": new Image(),
+    				"moved": false
+    	};
+    	ghost[i].image.src = 'img/ghosts/ghost'+i+'.svg';
+    }
 
     // generate level
     ctx.drawImage(backgroundImage[level], 
@@ -114,9 +124,8 @@ function logic() {
 		}
 
 		movePlayer();
-		moveGhosts();
-
 		coughtDetection();
+		moveGhosts();
 	}
 }
 
@@ -198,8 +207,7 @@ function draw() {
     }
 }
 
-var pacmanStep;
-var animate = false;
+
 
 /*
  * This function draws pacman depending on the grid position and also animates him.
@@ -273,13 +281,18 @@ function drawGhosts() {
 	for (var i = 0; i < ghost.length; i++) {
 		ctx.save();	// this lets just affect the translation to the following things by saving the canvas and just manipulating the things down there
 
+		if (ghost[i].moved) {
+			ghost[i].moved = false;
+			ghostStep[i] = 1;
+		}
+
+		// position of the ghost
 		var ghostPos;
 
 		// step in grid
 		var step = ghostStep[i]/getFramesPerInterval();
 		
-		if (step < 1.2 && running) {
-
+		if (step < 1) { 		// && running
 			// step in pixel
 			var pixelStep = step*(canvas.width/grid.x);
 			// do it
@@ -294,17 +307,13 @@ function drawGhosts() {
 		    }
 		    // count up for next frame
 		    ghostStep[i]++;
-
 			ghostPos = getPixelCenter(ghost[i].prevX, ghost[i].prevY);
 		} else {
-			ghostStep[i] = 1;
 			ghostPos = getPixelCenter(ghost[i].x, ghost[i].y);
 		}
 		
-
 		// draw 
-		ctx.drawImage(ghostImage[i], ghostPos.x-(characterSize/2), ghostPos.y-(characterSize/2), characterSize, characterSize);
-
+		ctx.drawImage(ghost[i].image, ghostPos.x-(characterSize/2), ghostPos.y-(characterSize/2), characterSize, characterSize);
 		ctx.restore();	// restore the settings of the canvas
 	}
 }
@@ -369,29 +378,32 @@ function moveGhosts() {
 
 		// border collision detection
 		var ok = [null, 
-			!borders[ghost[i].x][ghost[i].y+1], 
+			!borders[ghost[i].x][ghost[i].y-1], 
 			!borders[ghost[i].x+1][ghost[i].y],
-			!borders[ghost[i].x][ghost[i].y-1],
+			!borders[ghost[i].x][ghost[i].y+1],
 			!borders[ghost[i].x-1][ghost[i].y]
 		];
 
-		var trys = 0;
 		// do the movement
 		do {
 			var ghostDirection = Math.floor(Math.random()*4)+1;
 			if (ok[ghostDirection]) {
 				if (ghostDirection == 1) {
-					ghost[i].y++;
+					ghost[i].y--;
+					break;
 				} else if (ghostDirection == 2) {
 					ghost[i].x++;
+					break;
 				} else if (ghostDirection == 3) {
-					ghost[i].y--;
+					ghost[i].y++;
+					break;
 				} else if (ghostDirection == 4) {
 					ghost[i].x--;
+					break;
 				}
 			}
-			trys++;
 		} while (!ok[ghostDirection]);
+		ghost[i].moved = true;
 	}
 }
 
@@ -513,8 +525,10 @@ function coughtDetection() {
 	// pacman gets cought
 	for (var i = 0; i < ghost.length; i++) {
 		if (player.x == ghost[i].x && player.y == ghost[i].y) {
-			clearInterval(interval);	// break out of loop
-			cought();
+			clearInterval(interval);
+			//clearInterval(interval);	// break out of loop
+			//cought();
+			window.setTimeout(cought, getInterval());
 		}
 	}
 }
@@ -524,6 +538,8 @@ function coughtDetection() {
  * if theres none left gameover() gets called.
  */
 function cought() {
+	//clearInterval(interval);	// break out of loop
+
 	if (life == 1) {
 		gameover();
 	} else {
@@ -533,11 +549,8 @@ function cought() {
 
 		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 		direction = 0;
-		player = null;
-		borders = null;
-		dots = null;
-		dotCounter = null;
-
+		
+		running = false;
 		initial();
 	}
 }
@@ -553,11 +566,7 @@ function gameover() {
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
-	player = null;
-	borders = null;
-	dots = null;
-	dotCounter = null;
-	level = 0;
+	life = maxLifes;
 	running = false;
 
 	alert(message);
