@@ -10,7 +10,7 @@ body {
 
 h1 {
 	font-size: 1.6em;
-	padding-bottom: 25px
+	padding-bottom: 15px
 }
 
 a {
@@ -23,8 +23,9 @@ a {
 }
 
 #wrapper {
-	width: 60%;
-	padding: 25px;
+	width: inherit;
+	max-width: 800px;
+	padding: 15px;
 }
 
 #game {
@@ -44,4 +45,9 @@ a {
 .right {
 	float: right;
 	padding-left: 10px;
+}
+
+.space {
+	padding: 0 5px;
+	display: inline;
 }
