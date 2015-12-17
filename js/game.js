@@ -6,18 +6,20 @@ var ctx = null;
 var level = 0;			// start level is 0
 const quantityOfLevels = 3;
 const quantityOfGhosts = 3;
+
 const quantityOfLifes = 3;
+var life = quantityOfLifes;
 
 const speed = 60;		// game speed in percent
 const fps = 25;			// frames per second
 
 /* --------------------------------- */
 
+var characterSize;
+
 var grid = new Array();
 var pacman = new Array();
 var ghost = new Array();
-
-var characterSize;
 
 var running = false;
 
@@ -62,8 +64,7 @@ function initial() {
     	"moved": false,
     	"animate": false,
     	"animation": 0,
-    	"step": null,
-    	"life": quantityOfLifes
+    	"step": null
     }
 
     for (var i = 0; i < 10; i++) {
@@ -99,11 +100,14 @@ function initial() {
 
     characterSize = (canvas.width/grid.x)*0.9;
 
-
-    // loading images takes long, so wait till 
-    // the grid image got loaded
+    // loading images is asynchronous, so it has to be
+    // ensured that the following gets executed after
+    // loading the image
     grid.image.onload = function() {
+    	// clear canvas
+    	ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    	// draw image
     	ctx.drawImage(grid.image, 
 	    	0, 0, grid.image.width, grid.image.height, 
 	    	0, 0, canvas.width, canvas.height);
@@ -119,6 +123,7 @@ function initial() {
 
 		// start animation
 		draw();
+
     }
 }
 
@@ -129,13 +134,13 @@ function logic() {
 
 	if (running) {
 		if (dotCounter == 0) {
-			clearInterval(interval);	// break out of loop
 			nextLevel();
 		}
-
+		coughtDetection();
 		movePlayer();
 		coughtDetection();
 		moveGhosts();
+		
 	}
 }
 
@@ -170,7 +175,7 @@ function draw() {
 
 			ctx.beginPath();
 
-			/* Not yet functioning ...
+			/*// Not yet functioning ...
 			// text
 			// font-family: Montserrat,'Helvetica Neue',Helvetica,Arial,sans-serif;
             ctx.beginPath();
@@ -181,13 +186,9 @@ function draw() {
 			ctx.closePath();
 			*/
 
-			ctx.beginPath();
-			
 			// overlay
 			ctx.fillStyle="rgba(44,62,80,0.8)";
 			ctx.fillRect(0,0,canvas.width, canvas.height);
-
-			ctx.closePath();
 
 			ctx.restore();
 		} 
@@ -519,10 +520,11 @@ function getFramesPerInterval() {
  */
 function nextLevel() {
 	//alert("Congratulations! \nYou finished level "+(level+1)+"!");
-
-	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+	clearInterval(interval);	// break out of loop
 	direction = 0;
-	pacman.life = quantityOfLifes;
+	dots = null;
+	borders = null;
+	life = quantityOfLifes;
 
 	level++;
 
@@ -543,33 +545,31 @@ function coughtDetection() {
 	var length = ghost.length;
 	for (var i = 0; i < length; i++) {
 		if (pacman.x == ghost[i].x && pacman.y == ghost[i].y) {
-			clearInterval(interval);
-			//clearInterval(interval);	// break out of loop
-			//cought();
-			window.setTimeout(cought, getInterval());
+			
+			life--;
+
+			if (life == 0) {
+				clearInterval(interval);	// break out of loop
+				gameover();
+			} else {
+				alert("You got cought! \nYou have "+life+" lifes left.");
+
+				setTimeout(function() {
+					var i = 5;
+				}, 500);
+
+				clearInterval(interval);	// break out of loop
+				ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+
+				borders = null;
+				dots = null;
+
+				direction = 1;
+				direction = 0;
+				
+				initial();
+			}
 		}
-	}
-}
-
-/*
- * This method handles if pacman get cought. It reduces the lifes,
- * if theres none left gameover() gets called.
- */
-function cought() {
-	//clearInterval(interval);	// break out of loop
-
-	if (pacman.life == 1) {
-		gameover();
-	} else {
-		pacman.life--;
-
-		alert("You got cought! \nYou have "+pacman.life+" lifes left.");
-
-		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
-		direction = 0;
-		
-		running = false;
-		initial();
 	}
 }
 
@@ -582,9 +582,8 @@ function gameover() {
 	var message = "Game Over";
 	if (level == quantityOfLevels) message+="\nYou win!"
 
-	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
-	pacman.life = quantityOfLifes;
+	life = quantityOfLifes;
 	running = false;
 
 	alert(message);
