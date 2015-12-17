@@ -1,62 +1,40 @@
-
 var canvas = null;
 var ctx = null;
 
-var backgroundImage = [new Image(), new Image(), new Image()];
-backgroundImage[0].src = 'img/grid/grid0.png';
-backgroundImage[1].src = 'img/grid/grid1.png';
-backgroundImage[2].src = 'img/grid/grid2.png';
+/* --------------------------------- */
 
-var pacmanImage = new Array();
-var pacmanAnimation = 0;
-var player;
-var playerMoved = false;
-var playerPrev;
-var pacmanStep;
-var animate = false;
+var level = 1;
+const quantityOfLevels = 3;
+const quantityOfGhosts = 3;
+const quantityOfLifes = 3;
 
+const speed = 60;		// game speed in percent
+const fps = 25;			// frames per second
 
-var grid = {"x": 20, "y": 15};
+/* --------------------------------- */
 
-
-quantityOfGhosts = 3;
+var grid = new Array();
+var pacman = new Array();
 var ghost = new Array();
-
-
 
 var characterSize;
 
 var running = false;
 
-const speed = 50;		// game speed in percent
-const fps = 25;
-
-var level = 0;		// the game level
-const lastLevel = 2;
-
-const maxLifes = 3;
-var life = maxLifes;		// lives get reduced if ghost touches pacman.
-
-/*
- * This variable contains an boolean two dimensional array like borders[x][y],
- * It contains, if on the position on the grid is a border or not.
- */
+// This variable contains an boolean two dimensional array like borders[x][y],
+// It contains, if on the position on the grid is a border or not.
 var borders;
-var dots;
 
+var dots;
 var dotCounter = 0;
 
-/*
- * defines in which direction Pacman will move next.
- * 0 means stop, 1 means up, 2 is right, 3 is down and 4 is left.
- */
+
+// defines in which direction Pacman will move next.
+//0 means stop, 1 means up, 2 is right, 3 is down and 4 is left.
 var direction = 0;
 
-/*
- * This initializes the game.
- */
+// This initializes the game.
 function initial() {
-	//running = true;
 	
 	// get canvas
 	canvas = document.getElementById("game");
@@ -64,11 +42,32 @@ function initial() {
 	// get canvas context
     ctx = canvas.getContext("2d");
 
-    characterSize = (canvas.width/grid.x)*0.9;
+	/* --------------------------------- */
+
+	grid = {
+		"x": 20,
+		"y": 15,
+		"image": new Image()
+	};
+	grid.image.src = 'img/grid/grid'+level+'.png';
 
     /* --------------------------------- */
+
+    pacman = {
+    	"x": 1,
+		"y": 7,
+		"prevX": pacman.x,
+		"prevY": pacman.y,
+    	"image": new Array(),
+    	"moved": false,
+    	"animate": false,
+    	"animation": 0,
+    	"step": null,
+    	"life": quantityOfLifes
+    }
+
     for (var i = 0; i < 10; i++) {
-    	pacmanImage[i] = new Image();
+    	pacman.image[i] = new Image();
     	var att;
     	var corr;
     	if (i < 5) {
@@ -78,38 +77,49 @@ function initial() {
     		att = "l";
     		corr = 5;
     	}
-    	pacmanImage[i].src = "img/pacman/pacman"+(i-corr)+att+".svg";
+    	pacman.image[i].src = "img/pacman/pacman"+(i-corr)+att+".svg";
     }
 
-
-    // define start position of pacman
-    player = {"x": 1, "y": 7};
-    playerPrev = {"x": player.x, "y": player.y};
+    /* --------------------------------- */
 
     for (var i = 0; i < quantityOfGhosts; i++) {
-    	ghost[i] = {"x": Math.round(grid.x/2),
-    				"y": Math.round(grid.y/2),
-    				"prevX": Math.round(grid.x/2),
-    				"prevY": Math.round(grid.y/2),
-    				"image": new Image(),
-    				"moved": false
+    	ghost[i] = {
+    		"x": 13,
+			"y": 7,
+			"prevX": 13,
+			"prevY": 7,
+			"image": new Image(),
+			"moved": false,
+			"step": new Array()
     	};
     	ghost[i].image.src = 'img/ghosts/ghost'+i+'.svg';
     }
 
-    // generate level
-    ctx.drawImage(backgroundImage[level], 
-    	0, 0, backgroundImage[level].width, backgroundImage[level].height, 
-    	0, 0, canvas.width, canvas.height);
+    /* --------------------------------- */
 
-    getBorders();
-    createDots();
+    characterSize = (canvas.width/grid.x)*0.9;
 
-    // start logic iteration
-    interval = setInterval(logic, getInterval());
 
-    // Start animation
-    draw();
+    // loading images takes long, so wait till 
+    // the grid image got loaded
+    grid.image.onload = function() {
+
+    	ctx.drawImage(grid.image, 
+	    	0, 0, grid.image.width, grid.image.height, 
+	    	0, 0, canvas.width, canvas.height);
+
+		// analyze image for borders
+		getBorders();
+
+		// create dots on every place where no border is
+		createDots();
+
+		// start logic iteration
+		interval = setInterval(logic, getInterval());
+
+		// start animation
+		draw();
+    }
 }
 
 /*
@@ -183,16 +193,18 @@ function draw() {
 		} 
 		
 		
-		ctx.drawImage(backgroundImage[level], 
-	    	0, 0, backgroundImage[level].width, backgroundImage[level].height, 
+		 ctx.drawImage(grid.image, 
+	    	0, 0, grid.image.width, grid.image.height, 
 	    	0, 0, canvas.width, canvas.height);
 
 		drawPacman();
 		drawGhosts();
 
 		// draw dots
-	    for (var w = 0; w < grid.x; w++) {
-			for (var h = 0; h < grid.y; h++) {
+		var wMax = grid.x
+	    for (var w = 0; w < wMax; w++) {
+	    	var hMax = grid.y
+			for (var h = 0; h < hMax; h++) {
 				if (dots[w][h]) {
 					dot = getPixelCenter(w, h);
 					ctx.beginPath();
@@ -217,80 +229,81 @@ function drawPacman() {
 	ctx.save();	// this lets just affect the translation to the following things
 	
 	// change direction of pacman
-    if (direction == 4 && pacmanAnimation < 5) {	// pacman goes left
-    	pacmanAnimation = pacmanAnimation+5;
-    } else if (direction == 2 && pacmanAnimation > 4) {
-    	pacmanAnimation = pacmanAnimation-5;
+    if (direction == 4 && pacman.animation < 5) {	// pacman goes left
+    	pacman.animation = pacman.animation+5;
+    } else if (direction == 2 && pacman.animation > 4) {
+    	pacman.animation = pacman.animation-5;
     }
     
-	if (playerMoved) {
-		animate = true;
-		pacmanStep = 1;
-		playerMoved = false;
+	if (pacman.moved) {
+		pacman.animate = true;
+		pacman.step = 1;
+		pacman.moved = false;
 	}
 
 	// get position
 	var pos;
 
-	if (animate) { 
+	if (pacman.animate) { 
 
 		 // animate mouth
-	    if (pacmanAnimation == 4 || pacmanAnimation == 9) pacmanAnimation -= 5;
-	    pacmanAnimation++;
+	    if (pacman.animation == 4 || pacman.animation == 9) pacman.animation -= 5;
+	    pacman.animation++;
 
 		// step in grid
-		var step = pacmanStep/getFramesPerInterval();
+		var step = pacman.step/getFramesPerInterval();
 		// step in pixel
 		var pixelStep = step*(canvas.width/grid.x);
 		// do it
-		if (player.y < playerPrev.y) {			// moved up
+		if (pacman.y < pacman.prevY) {			// moved up
 	    	ctx.translate(0,-pixelStep);
-	    } else if (player.x > playerPrev.x) {	// moved right
+	    } else if (pacman.x > pacman.prevX) {	// moved right
 	    	ctx.translate(pixelStep,0);
-	    } else if (player.y > playerPrev.y) {	// moved down
+	    } else if (pacman.y > pacman.prevY) {	// moved down
 	    	ctx.translate(0,pixelStep);
-	    } else if (player.x < playerPrev.x) {	// moved left
+	    } else if (pacman.x < pacman.prevX) {	// moved left
 	    	ctx.translate(-pixelStep,0);
 	    }
 	    // count up for next frame
-	    pacmanStep++;
+	    pacman.step++;
 	    // stop if transition ended
-	    if (pacmanStep > getFramesPerInterval()) {
-	    	animate = false;
+	    if (pacman.step > getFramesPerInterval()) {
+	    	pacman.animate = false;
 	    }
 
 	    // take old position, which gets translated, see "translate()"-Function above
-	    pos = getPixelCenter(playerPrev.x, playerPrev.y);
+	    pos = getPixelCenter(pacman.prevX, pacman.prevY);
 	} else {
-		pos = getPixelCenter(player.x, player.y);
+		pos = getPixelCenter(pacman.x, pacman.y);
 	}
 
    	// draw pacman
-    ctx.drawImage(pacmanImage[pacmanAnimation], pos.x-(characterSize/2), pos.y-(characterSize/2), characterSize, characterSize);
+    ctx.drawImage(pacman.image[pacman.animation], pos.x-(characterSize/2), pos.y-(characterSize/2), characterSize, characterSize);
 
     ctx.restore();
 }
 
-var ghostStep = new Array();
+
 /*
  * This method draws the ghosts to the canvas on their grid position.
  */
 function drawGhosts() {
 
 	// draw ghosts
-	for (var i = 0; i < ghost.length; i++) {
+	var length = ghost.length;
+	for (var i = 0; i < length; i++) {
 		ctx.save();	// this lets just affect the translation to the following things by saving the canvas and just manipulating the things down there
 
 		if (ghost[i].moved) {
 			ghost[i].moved = false;
-			ghostStep[i] = 1;
+			ghost[i].step = 1;
 		}
 
 		// position of the ghost
 		var ghostPos;
 
 		// step in grid
-		var step = ghostStep[i]/getFramesPerInterval();
+		var step = ghost[i].step/getFramesPerInterval();
 		
 		if (step < 1) { 		// && running
 			// step in pixel
@@ -306,7 +319,7 @@ function drawGhosts() {
 		    	ctx.translate(-pixelStep,0);
 		    }
 		    // count up for next frame
-		    ghostStep[i]++;
+		    ghost[i].step++;
 			ghostPos = getPixelCenter(ghost[i].prevX, ghost[i].prevY);
 		} else {
 			ghostPos = getPixelCenter(ghost[i].x, ghost[i].y);
@@ -322,46 +335,47 @@ function drawGhosts() {
  * This method handles the moving of pacman depending on the key events.
  */ 
 function movePlayer() {
-	playerPrev = {"x": player.x, "y": player.y};
+	pacman.prevX = pacman.x;
+	pacman.prevY = pacman.y;
 
     // navigate with keys
 	if (direction == 1) {
-		if (player.y-1 > 0) {
-			var temp = borders[player.x][player.y-1];
+		if (pacman.y-1 > 0) {
+			var temp = borders[pacman.x][pacman.y-1];
 			if (!temp) {
-				player.y--;
-				playerMoved = true;
+				pacman.y--;
+				pacman.moved = true;
 			}
 		}
 	} else if (direction == 2) {
-		if (player.x+1 < grid.x) {
-			var temp = borders[player.x+1][player.y];
+		if (pacman.x+1 < grid.x) {
+			var temp = borders[pacman.x+1][pacman.y];
 			if (!temp) {
-				player.x++;
-				playerMoved = true;
+				pacman.x++;
+				pacman.moved = true;
 			}
 		}
 	} else if (direction == 3) {
-		if (player.y+1 < grid.y) {
-			var temp = borders[player.x][player.y+1];
+		if (pacman.y+1 < grid.y) {
+			var temp = borders[pacman.x][pacman.y+1];
 			if (!temp) {
-				player.y++;
-				playerMoved = true;
+				pacman.y++;
+				pacman.moved = true;
 			}
 		}
 	} else if (direction == 4) {
-		if (player.x-1 > 0) {
-			var temp = borders[player.x-1][player.y];
+		if (pacman.x-1 > 0) {
+			var temp = borders[pacman.x-1][pacman.y];
 			if (!temp) {
-				player.x--;
-				playerMoved = true;
+				pacman.x--;
+				pacman.moved = true;
 			}
 		}
 	}
 
-	if (dots[player.x][player.y]) {
+	if (dots[pacman.x][pacman.y]) {
 		dotCounter--;
-		dots[player.x][player.y] = false;
+		dots[pacman.x][pacman.y] = false;
 	}
 }
 
@@ -371,7 +385,8 @@ function movePlayer() {
 function moveGhosts() {
 
 	// ghost1 and ghost2
-	for (var i = 0; i < ghost.length; i++) {
+	var length = ghost.length;
+	for (var i = 0; i < length; i++) {
 
 		ghost[i].prevX = ghost[i].x;
 		ghost[i].prevY = ghost[i].y;
@@ -414,24 +429,28 @@ function moveGhosts() {
  * if not transparent its a border.
  */
 function getBorders() {
+
 	borders = new Array();
 
 	var pixelX = canvas.width/grid.x;	// width of one pixel in the grid
 	var pixelY = canvas.height/grid.y;	// height of one pixel in the grid
 
-	var startPixelX = pixelX/2;	// for beginning the first x-position is middel of the first grid-pixel in x
-	var startPixelY = pixelY/2;	// for beginning the first x-position is middel of the first grid-pixel in y
+	var startPixelX = pixelX/2;	// for beginning the first x-position is middle of the first grid-pixel in x
+	var startPixelY = pixelY/2;	// same for y
 	
 	var x = startPixelX;
 	var y = startPixelY;
 
 	var w = 0, h = 0;
 
-	for (w; w < grid.x; w++) {
+	var wMax = grid.x;
+	for (w; w < wMax; w++) {
 		borders[w] = new Array();
 
-		for (h; h < grid.y; h++) {
-			borders[w][h] = ctx.getImageData(x,y,1,1).data[3] != 0;	// test if transparency of grid image, if != 0 its a border
+		var hMax = grid.y;
+		for (h; h < hMax; h++) {
+			var isBorder = ctx.getImageData(x,y,1,1).data[3] != 0;  // test if transparency of grid image, if != 0 its a border
+			borders[w][h] = isBorder;
 			y += pixelY;	// go to next horizontal pixel
 		}
 		h = 0;
@@ -450,10 +469,12 @@ function createDots() {
 
 	dots = new Array();
 	var w = 0, h = 0;
-	for (w; w < grid.x; w++) {
+	var wMax = grid.x;
+	for (w; w < wMax; w++) {
 		dots[w] = new Array();
 
-		for (h; h < grid.y; h++) {
+		var hMax = grid.y;
+		for (h; h < hMax; h++) {
 			if (!borders[w][h]) {
 				dots[w][h] = true;
 				tempDotCounter++;
@@ -497,19 +518,15 @@ function getFramesPerInterval() {
  * is reached.
  */
 function nextLevel() {
-	alert("Congratulations! \nYou finished level "+(level+1)+"!");
+	//alert("Congratulations! \nYou finished level "+(level+1)+"!");
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
-	player = null;
-	borders = null;
-	dots = null;
-	dotCounter = null;
-	maxDots = null;
-	lifes = maxLifes;
+	pacman.life = quantityOfLifes;
 
 	level++;
-	if (level > lastLevel) {
+
+	if (level == quantityOfLevels) {
 		gameover();
 	}
 
@@ -523,8 +540,9 @@ function nextLevel() {
  */
 function coughtDetection() {
 	// pacman gets cought
-	for (var i = 0; i < ghost.length; i++) {
-		if (player.x == ghost[i].x && player.y == ghost[i].y) {
+	var length = ghost.length;
+	for (var i = 0; i < length; i++) {
+		if (pacman.x == ghost[i].x && pacman.y == ghost[i].y) {
 			clearInterval(interval);
 			//clearInterval(interval);	// break out of loop
 			//cought();
@@ -540,12 +558,12 @@ function coughtDetection() {
 function cought() {
 	//clearInterval(interval);	// break out of loop
 
-	if (life == 1) {
+	if (pacman.life == 1) {
 		gameover();
 	} else {
-		life--;
+		pacman.life--;
 
-		alert("You got cought! \nYou have "+life+" lifes left.");
+		alert("You got cought! \nYou have "+pacman.life+" lifes left.");
 
 		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 		direction = 0;
@@ -562,11 +580,11 @@ function cought() {
 function gameover() {
 
 	var message = "Game Over";
-	if (level > lastLevel) message+="\nYou win!"
+	if (level == quantityOfLevels) message+="\nYou win!"
 
 	ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 	direction = 0;
-	life = maxLifes;
+	pacman.life = quantityOfLifes;
 	running = false;
 
 	alert(message);
