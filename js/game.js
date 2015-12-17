@@ -3,7 +3,7 @@ var ctx = null;
 
 /* --------------------------------- */
 
-var level = 1;
+var level = 0;			// start level is 0
 const quantityOfLevels = 3;
 const quantityOfGhosts = 3;
 const quantityOfLifes = 3;
