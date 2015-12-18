@@ -79,12 +79,45 @@
         <div class="container">
             <div class="row">
 
-                    <!-- HTML5 Canvas -->
-                    <canvas id="game" class="img-responsive" style="display: block; margin: 0 auto;" width="800" height="600" ></canvas>
+                <!-- HTML5 Canvas -->
+                <canvas id="game" class="img-responsive" style="display: block; margin: 0 auto;" width="800" height="600" ></canvas>
 
-                    <p style="text-align: center;">press spacebar to begin</p>
+                <p style="text-align: center;">press spacebar to begin</p>
+
+                <div id="controls" class="visible-xs visible-sm">
+                    <a onclick="buttonClick(1)">
+                        <div class="up control">
+                            <i class="fa fa-arrow-up"></i>
+                        </div>
+                    </a>
+                    <br />
+                    <a onclick="buttonClick(4)">
+                        <div class="left control">
+                            <i class="fa fa-arrow-left"></i>
+                        </div>
+                    </a>
+                    <a onclick="buttonClick(3)">
+                        <div class="down control">
+                            <i class="fa fa-arrow-down"></i>
+                        </div>
+                    </a>
+                    <a onclick="buttonClick(2)">
+                        <div class="rigth control">
+                            <i class="fa fa-arrow-right"></i>
+                        </div>
+                    </a>
+
+                <script><!--
+
+                    function buttonClick(x) {
+                        direction = x;
+                    }
+
+                --></script>
+
 
                 </div>
+
             </div>
         </div>
     </section>

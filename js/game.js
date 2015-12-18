@@ -37,6 +37,8 @@ var direction = 0;
 
 // This initializes the game.
 function initial() {
+
+	running = true;
 	
 	// get canvas
 	canvas = document.getElementById("game");
