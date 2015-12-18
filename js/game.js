@@ -628,7 +628,7 @@ function changeDirection(e) {
 		e.preventDefault();
 
 		// toggle running
-		running = !running
+		toggleRunning();
 	}
 
 	// disable scrolling via arrow keys and all other default functions of the keyboard
@@ -640,4 +640,8 @@ function changeDirection(e) {
  */
 function buttonClick(x) {
     direction = x;
+}
+
+function toggleRunning() {
+	running = !running;
 }
