@@ -462,6 +462,7 @@ footer .footer-below {
 /* ------------------------- add in less */
 
 #controls {
+    padding-top: 10px;
     margin: 0 auto;
     display: inline-block;
     text-align: center;
@@ -475,8 +476,8 @@ footer .footer-below {
 
 #controls .control {
     margin: 5px;
-    width: 75px;
-    height: 75px;
+    width: 60px;
+    height: 60px;
 
     -moz-border-radius: 75px;
     -webkit-border-radius: 75px;
@@ -486,8 +487,8 @@ footer .footer-below {
 }
 
 #controls .control i {
-    padding-top: 18px;
-    font-size: 2.5em;
+    padding-top: 13px;
+    font-size: 2.2em;
     color: #fff;
     display: inline-block;
 }
