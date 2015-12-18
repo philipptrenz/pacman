@@ -634,3 +634,10 @@ function changeDirection(e) {
 	// disable scrolling via arrow keys and all other default functions of the keyboard
 	if (running) e.preventDefault();
 }
+
+/*
+ * Handling for buttons in html for small devices
+ */
+function buttonClick(x) {
+    direction = x;
+}
