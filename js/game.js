@@ -97,13 +97,14 @@ function initial() {
 
     for (var i = 0; i < quantityOfGhosts; i++) {
     	ghost[i] = {
-    		"x": 13,
-			"y": 7,
+    		"x": 13,				// the x position of the ghost in the grid
+			"y": 7,					// the y position of the ghost in the grid
 			"prevX": 13,
 			"prevY": 7,
 			"image": new Image(),
 			"moved": false,
-			"step": new Array()
+			"step": new Array(),	
+			"vision": 4				// how wide the ghost can "see"
     	};
     	ghost[i].image.src = 'img/ghosts/ghost'+i+'.svg';
     }
@@ -135,7 +136,6 @@ function initial() {
 
 		// start animation
 		draw();
-
     }
 }
 
@@ -404,33 +404,79 @@ function moveGhosts() {
 		ghost[i].prevX = ghost[i].x;
 		ghost[i].prevY = ghost[i].y;
 
-		// border collision detection
-		var ok = [null, 
-			!borders[ghost[i].x][ghost[i].y-1], 
-			!borders[ghost[i].x+1][ghost[i].y],
-			!borders[ghost[i].x][ghost[i].y+1],
-			!borders[ghost[i].x-1][ghost[i].y]
-		];
+		// max vision that ghost can "see" pacman
+		var vision = ghost[i].vision;	
 
-		// do the movement
-		do {
-			var ghostDirection = Math.floor(Math.random()*4)+1;
-			if (ok[ghostDirection]) {
-				if (ghostDirection == 1) {
-					ghost[i].y--;
-					break;
-				} else if (ghostDirection == 2) {
-					ghost[i].x++;
-					break;
-				} else if (ghostDirection == 3) {
-					ghost[i].y++;
-					break;
-				} else if (ghostDirection == 4) {
-					ghost[i].x--;
+		// if distance in y between ghost and pacman is <= vision
+		var seeInX = ghost[i].y == pacman.y && Math.abs(ghost[i].x - pacman.x) <= vision;
+
+		// if distance in y between ghost and pacman is <= vision
+		var seeInY = ghost[i].x == pacman.x && Math.abs(ghost[i].y - pacman.y) <= vision;
+
+		// ghost can just see pacman if there's no border between them
+		if (seeInX) {
+			var corr = pacman.x-ghost[i].x > 0 ? 1 : -1;
+			var test = ghost[i].x;
+			while (test != pacman.x) {
+				test += corr;
+				if (borders[test][ghost[i].y]) {
+					seeInX = false;
 					break;
 				}
 			}
-		} while (!ok[ghostDirection]);
+		} else if (seeInY) {
+			var corr = pacman.y-ghost[i].y > 0 ? 1 : -1;
+			var test = ghost[i].y;
+			while (test != pacman.y) {
+				test += corr;
+				if (borders[ghost[i].x][test]) {
+					seeInY = false;
+					break;
+				}
+			}
+		}
+
+		// with a chance of 1 to 4 the ghost will no longer chase pacman
+		if (seeInX && Math.floor(Math.random()*3) == 0) seeInX = false;
+		if (seeInY && Math.floor(Math.random()*3) == 0) seeInY = false;
+
+
+		if (seeInX) {
+			var dir = pacman.x-ghost[i].x > 0 ? 1 : -1;
+			ghost[i].x+=dir;
+		} else if (seeInY) { // if distance in x between ghost and pacman is <= distance
+			var dir = pacman.y-ghost[i].y > 0 ? 1 : -1;
+			ghost[i].y+=dir;
+		} else {
+			
+			// border collision detection
+			var ok = [null, 
+				!borders[ghost[i].x][ghost[i].y-1], 
+				!borders[ghost[i].x+1][ghost[i].y],
+				!borders[ghost[i].x][ghost[i].y+1],
+				!borders[ghost[i].x-1][ghost[i].y]
+			];
+
+			// do the movement
+			do {
+				var ghostDirection = Math.floor(Math.random()*4)+1;
+				if (ok[ghostDirection]) {
+					if (ghostDirection == 1) {
+						ghost[i].y--;
+						break;
+					} else if (ghostDirection == 2) {
+						ghost[i].x++;
+						break;
+					} else if (ghostDirection == 3) {
+						ghost[i].y++;
+						break;
+					} else if (ghostDirection == 4) {
+						ghost[i].x--;
+						break;
+					}
+				}
+			} while (!ok[ghostDirection]);
+		}
 		ghost[i].moved = true;
 	}
 }
@@ -578,7 +624,6 @@ function coughtDetection() {
 			clearInterval(interval);	// break out of loop
 			ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
 
-			borders = null;
 			dots = null;
 
 			direction = 1;
