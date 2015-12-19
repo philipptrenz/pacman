@@ -582,7 +582,7 @@ function nextLevel() {
 	direction = 0;
 	dots = null;
 	borders = null;
-	life = quantityOfLifes;
+	//life = quantityOfLifes;
 
 	level++;
 
@@ -645,7 +645,7 @@ function gameover() {
 	if (level == quantityOfLevels) message+="\nYou win!"
 
 	direction = 0;
-	//life = quantityOfLifes;
+	life = quantityOfLifes;
 	level = 0;
 	running = false;
 
