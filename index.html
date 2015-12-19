@@ -79,6 +79,11 @@
         <div class="container">
             <div class="row">
 
+                <div id="game-status">
+                    <div id="dots"></div>
+                    <div id="lifes"></div>
+                </div>
+
                 <!-- HTML5 Canvas -->
                 <canvas id="game" class="img-responsive" style="display: block; margin: 0 auto;" width="800" height="600" onclick="toggleRunning()"></canvas>
 
@@ -107,6 +112,20 @@
                 </div>
 
                 <style>
+
+                    #game-status {
+                        padding-bottom: 5px;
+                        display: inline;
+                    }
+
+                    #game-status #lifes {
+                        text-align: center;
+                    }
+
+                    #game-status #lifes i {
+                        font-size: 2em;
+                        padding: 0 5px 5px;
+                    }
 
                     #controls {
                         padding-top: 20px;
@@ -155,9 +174,21 @@
                     <hr class="star" style="max-width: 40%">
                 </div>
             </div>
-            <div class="row">
+
+            <!-- Instructions for large devices -->
+            <div class="row visible-md visible-lg">
                 <div class="col-lg-4 col-lg-offset-2">
+                    <p>Large: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+                </div>
+                <div class="col-lg-4">
                     <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
+                </div>
+            </div>
+
+            <!-- Instructions for small devices (touch) -->
+            <div class="row visible-xs visible-sm">
+                <div class="col-lg-4 col-lg-offset-2">
+                    <p>Small: Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>
                 </div>
                 <div class="col-lg-4">
                     <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.</p>

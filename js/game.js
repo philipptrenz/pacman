@@ -39,6 +39,16 @@ var direction = 0;
 function initial() {
 
 	running = true;
+
+	/* --------------------------------- */
+
+	var status = document.getElementById("lifes");
+	status.innerHTML = null;
+	for (var i = 0; i < life; i++) {
+		status.innerHTML += "<i class='fa fa-heart'></i>";
+	}
+
+	/* --------------------------------- */
 	
 	// get canvas
 	canvas = document.getElementById("game");
@@ -138,9 +148,9 @@ function logic() {
 		if (dotCounter == 0) {
 			nextLevel();
 		}
-		coughtDetection();
+		coughtDetection();	// does not recognize every time
 		movePlayer();
-		coughtDetection();
+		coughtDetection();	// too late
 		moveGhosts();
 		
 	}
@@ -544,34 +554,39 @@ function nextLevel() {
  */
 function coughtDetection() {
 	// pacman gets cought
+	var cought = false;
 	var length = ghost.length;
 	for (var i = 0; i < length; i++) {
 		if (pacman.x == ghost[i].x && pacman.y == ghost[i].y) {
-			
-			life--;
-
-			if (life == 0) {
-				clearInterval(interval);	// break out of loop
-				gameover();
-			} else {
-				alert("You got cought! \nYou have "+life+" lifes left.");
-
-				setTimeout(function() {
-					var i = 5;
-				}, 500);
-
-				clearInterval(interval);	// break out of loop
-				ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
-
-				borders = null;
-				dots = null;
-
-				direction = 1;
-				direction = 0;
-				
-				initial();
-			}
+			cought = true;
 		}
+	}
+
+	if (cought) {
+		life--;
+
+		if (life == 0) {
+			clearInterval(interval);	// break out of loop
+			gameover();
+		} else {
+			alert("You got cought! \nYou have "+life+" lifes left.");
+
+			setTimeout(function() {
+				var i = 5;
+			}, 500);
+
+			clearInterval(interval);	// break out of loop
+			ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
+
+			borders = null;
+			dots = null;
+
+			direction = 1;
+			direction = 0;
+			
+			initial();
+		}
+		cought = false;
 	}
 }
 
