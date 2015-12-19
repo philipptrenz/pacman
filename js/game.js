@@ -10,7 +10,7 @@ const quantityOfGhosts = 3;
 const quantityOfLifes = 3;
 var life = quantityOfLifes;
 
-const speed = 60;		// game speed in percent
+const speed = 75;		// game speed in percent
 const fps = 25;			// frames per second
 
 /* --------------------------------- */
@@ -104,7 +104,7 @@ function initial() {
 			"image": new Image(),
 			"moved": false,
 			"step": new Array(),	
-			"vision": 4				// how wide the ghost can "see"
+			"vision": 5				// how wide the ghost can "see"
     	};
     	ghost[i].image.src = 'img/ghosts/ghost'+i+'.svg';
     }
@@ -646,6 +646,7 @@ function gameover() {
 
 	direction = 0;
 	life = quantityOfLifes;
+	level = 0;
 	running = false;
 
 	alert(message);
