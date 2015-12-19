@@ -10,7 +10,7 @@ const quantityOfGhosts = 3;
 const quantityOfLifes = 3;
 var life = quantityOfLifes;
 
-const speed = 75;		// game speed in percent
+const speed = 60;		// game speed in percent
 const fps = 25;			// frames per second
 
 /* --------------------------------- */
@@ -645,7 +645,7 @@ function gameover() {
 	if (level == quantityOfLevels) message+="\nYou win!"
 
 	direction = 0;
-	life = quantityOfLifes;
+	//life = quantityOfLifes;
 	level = 0;
 	running = false;
 
