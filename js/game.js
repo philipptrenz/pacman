@@ -97,10 +97,10 @@ function initial() {
 
     for (var i = 0; i < quantityOfGhosts; i++) {
     	ghost[i] = {
-    		"x": 13,				// the x position of the ghost in the grid
-			"y": 7,					// the y position of the ghost in the grid
-			"prevX": 13,
-			"prevY": 7,
+    		"x": Math.round(grid.x/2),				// the x position of the ghost in the grid
+			"y": Math.round(grid.y/2),				// the y position of the ghost in the grid
+			"prevX": Math.round(grid.x/2),
+			"prevY": Math.round(grid.y/2),
 			"image": new Image(),
 			"moved": false,
 			"step": new Array(),	
