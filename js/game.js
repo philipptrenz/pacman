@@ -4,8 +4,10 @@ var ctx = null;
 /* --------------------------------- */
 
 var level = 0;			// start level is 0
-const quantityOfLevels = 3;
+const levelImages = 3;	// qunantity of level graphics under img/grid
+const ghostImages = 3;	// quantity of ghost graphics under img/ghosts
 const quantityOfGhosts = 3;
+
 
 const quantityOfLifes = 3;
 var life = quantityOfLifes;
@@ -21,7 +23,12 @@ var grid = new Array();
 var pacman = new Array();
 var ghost = new Array();
 
-var running = false;
+// game states
+var isRunning = false;
+var isBeginning = true;
+var isGameover = false;
+var isCought = false;
+var isWon = false;
 
 // This variable contains an boolean two dimensional array like borders[x][y],
 // It contains, if on the position on the grid is a border or not.
@@ -37,8 +44,6 @@ var direction = 0;
 
 // This initializes the game.
 function initial() {
-
-	running = true;
 
 	/* --------------------------------- */
 
@@ -106,7 +111,7 @@ function initial() {
 			"step": new Array(),	
 			"vision": 5				// how wide the ghost can "see"
     	};
-    	ghost[i].image.src = 'img/ghosts/ghost'+i+'.svg';
+    	ghost[i].image.src = 'img/ghosts/ghost'+(i%ghostImages)+'.svg';
     }
 
     /* --------------------------------- */
@@ -144,7 +149,7 @@ function initial() {
  */
 function logic() {
 
-	if (running) {
+	if (isRunning) {
 		if (dotCounter == 0) {
 			nextLevel();
 		}
@@ -182,28 +187,46 @@ function draw() {
 		// draw backgroundImage
 
 		// game is paused
-		if (!running) {
+		if (!isRunning) {
 			ctx.save();
-
-			ctx.beginPath();
-
-			/*// Not yet functioning ...
-			// text
-			// font-family: Montserrat,'Helvetica Neue',Helvetica,Arial,sans-serif;
-            ctx.beginPath();
-			ctx.font = "normal normal 700 6em Montserrat";
-			ctx.fillStyle="#ffffff";
-			ctx.fillText("PAUSED", canvas.width/2, canvas.heigth/2);
-
-			ctx.closePath();
-			*/
-
+			ctx.fillStyle="white";
+			ctx.textAlign="center"; 
+			if (isBeginning) {
+				ctx.font = "normal normal 700 6em Montserrat";
+				ctx.fillText("LEVEL "+(level+1), canvas.width/2, canvas.height/2*0.95);
+				ctx.font = "normal normal normal 2.4em Montserrat";
+				ctx.fillText("click to start", canvas.width/2, canvas.height/2*1.1);
+			} else if (isGameover) {
+				ctx.font = "normal normal 700 6em Montserrat";
+				ctx.fillText("GAMEOVER", canvas.width/2, canvas.height/2*0.95);
+				ctx.font = "normal normal normal 2.4em Montserrat";
+				ctx.fillText("click to restart the game", canvas.width/2, canvas.height/2*1.1);
+			}else if (isCought) {
+				ctx.font = "normal normal 700 6em Montserrat";
+				ctx.fillText("COUGHT", canvas.width/2, canvas.height/2*0.95);
+				ctx.font = "normal normal normal 2.4em Montserrat";
+				ctx.fillText("click to try again", canvas.width/2, canvas.height/2*1.1);
+			} else if (isWon) { 
+				ctx.font = "normal normal 700 6em Montserrat";
+				ctx.fillText("YOU WON", canvas.width/2, canvas.height/2*0.95);
+				ctx.font = "normal normal normal 2.4em Montserrat";
+				ctx.fillText("click to play again", canvas.width/2, canvas.height/2*1.1);
+			} else {
+				ctx.font = "normal normal 700 6em Montserrat";
+				ctx.fillText("PAUSED", canvas.width/2, canvas.height/2*0.95);
+				ctx.font = "normal normal normal 2.4em Montserrat";
+				ctx.fillText("click to continue", canvas.width/2, canvas.height/2*1.1);
+			}
+			
 			// overlay
 			ctx.fillStyle="rgba(44,62,80,0.8)";
 			ctx.fillRect(0,0,canvas.width, canvas.height);
-
 			ctx.restore();
-		} 
+		} else {
+			isBeginning = false;
+			isGameover = false;
+			isCought = false;
+		}
 		
 		
 		 ctx.drawImage(grid.image, 
@@ -318,7 +341,7 @@ function drawGhosts() {
 		// step in grid
 		var step = ghost[i].step/getFramesPerInterval();
 		
-		if (step < 1) { 		// && running
+		if (step < 1) { 		// && isRunning
 			// step in pixel
 			var pixelStep = step*(canvas.width/grid.x);
 			// do it
@@ -494,7 +517,7 @@ function getBorders() {
 	var pixelX = canvas.width/grid.x;	// width of one pixel in the grid
 	var pixelY = canvas.height/grid.y;	// height of one pixel in the grid
 
-	var startPixelX = pixelX/2;	// for beginning the first x-position is middle of the first grid-pixel in x
+	var startPixelX = pixelX/2;	// for isBeginningning the first x-position is middle of the first grid-pixel in x
 	var startPixelY = pixelY/2;	// same for y
 	
 	var x = startPixelX;
@@ -577,19 +600,19 @@ function getFramesPerInterval() {
  * is reached.
  */
 function nextLevel() {
-	//alert("Congratulations! \nYou finished level "+(level+1)+"!");
 	clearInterval(interval);	// break out of loop
 	direction = 0;
 	dots = null;
 	borders = null;
-	//life = quantityOfLifes;
 
 	level++;
 
-	if (level == quantityOfLevels) {
-		gameover();
+	if (level == levelImages) {
+		isWon = true;
+	} else {
+		isBeginning = true;
 	}
-
+	isRunning = false;
 	initial();
 }
 
@@ -610,48 +633,20 @@ function coughtDetection() {
 
 	if (cought) {
 		life--;
-
+		clearInterval(interval);	// break out of loop
+		direction = 0;
+		isRunning = false;
 		if (life == 0) {
-			clearInterval(interval);	// break out of loop
-			gameover();
+			life = quantityOfLifes;
+			level = 0;
+			isGameover = true;
 		} else {
-			alert("You got cought! \nYou have "+life+" lifes left.");
-
-			setTimeout(function() {
-				var i = 5;
-			}, 500);
-
-			clearInterval(interval);	// break out of loop
-			ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas
-
 			dots = null;
-
-			direction = 1;
-			direction = 0;
-			
-			initial();
+			isCought = true;
 		}
+		initial();
 		cought = false;
 	}
-}
-
-/*
- * Ths method ends the game, even in the positive (completed last level) or
- * negative case (no life left).
- */
-function gameover() {
-
-	var message = "Game Over";
-	if (level == quantityOfLevels) message+="\nYou win!"
-
-	direction = 0;
-	life = quantityOfLifes;
-	level = 0;
-	running = false;
-
-	alert(message);
-
-	initial();
 }
 
 /*
@@ -669,7 +664,7 @@ function changeDirection(e) {
 	
 	var key  = e.keyCode || e.which;
 
-	if (running) {
+	if (isRunning) {
 		if (key == 38) {	// up
 			direction = 1;
 		}	
@@ -688,12 +683,12 @@ function changeDirection(e) {
 		// prevent default action on space bar permanent
 		e.preventDefault();
 
-		// toggle running
+		// toggle isRunning
 		toggleRunning();
 	}
 
 	// disable scrolling via arrow keys and all other default functions of the keyboard
-	if (running) e.preventDefault();
+	if (isRunning) e.preventDefault();
 }
 
 /*
@@ -704,5 +699,5 @@ function buttonClick(x) {
 }
 
 function toggleRunning() {
-	running = !running;
+	isRunning = !isRunning;
 }
