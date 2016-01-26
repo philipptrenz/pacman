@@ -146,23 +146,28 @@
                                      MYSQL_PASSWORD, 
                                      MYSQL_DATABASE
                                     );
-
-                if (mysqli_connect_errno($db)) {
-                    echo "<p>Sorry, no connection to database</p>";
-                } else {
-                    mysqli_query($db, "CREATE TABLE IF NOT EXISTS 'main' (
-                                                        'id' int(11) NOT NULL, 
-                                                        'nickname' varchar(20) COLLATE utf8_bin NOT NULL, 
-                                                        'score' int(11) NOT NULL, 
-                                                        'date' timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP)");
-                }
             ?>
 
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2>Highscore</h2>
                     <hr class="star" style="max-width: 40%">
-                    <p>Here you see the best <?php echo $maxResults; ?> players for now!</p>
+                    
+                    <?php 
+                        if (mysqli_connect_errno($db)) {
+                            echo "<p>Sorry, no connection to database</p>";
+                        } else {
+                            echo("<p>Here you see the best $maxResults players for now!</p>");
+                        }
+
+                        mysqli_query($db, "CREATE TABLE IF NOT EXISTS `main` (
+                                            `id` int(11) NOT NULL,
+                                            `nickname` varchar(20) COLLATE utf8_bin NOT NULL,
+                                            `score` int(11) NOT NULL,
+                                            `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                            )");
+                    ?>
+                            
                 </div>
             </div>
 
@@ -222,6 +227,7 @@
 
                         for ($i = 0; $i < $maxResults; $i++) {
 
+                            
                             if ($row = mysqli_fetch_assoc($res)) {
                                 echo "<div class='highscore table-row'>";
                             
