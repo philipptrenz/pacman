@@ -14,7 +14,6 @@ var life = quantityOfLifes;
 
 const speed = 60;		// game speed in percent
 const fps = 25;			// frames per second
-
 /* --------------------------------- */
 
 var characterSize;
@@ -36,6 +35,7 @@ var borders;
 
 var dots;
 var dotCounter = 0;
+var quantityOfDots;
 
 
 // defines in which direction Pacman will move next.
@@ -45,13 +45,16 @@ var direction = 0;
 // This initializes the game.
 function initial() {
 
-	/* --------------------------------- */
-
 	var status = document.getElementById("lifes");
 	status.innerHTML = null;
 	for (var i = 0; i < life; i++) {
 		status.innerHTML += "<i class='fa fa-heart'></i>";
 	}
+
+	/* --------------------------------- */
+
+	// show if there are saved games
+	if (document.cookie) document.getElementById("savegame").className += " active";
 
 	/* --------------------------------- */
 	
@@ -136,6 +139,13 @@ function initial() {
 		// create dots on every place where no border is
 		createDots();
 
+		// fix for long loading times by generating borders and dots
+		while(dots == null || borders == null) {
+			setTimeout(function() {
+				// do nothing
+			}, 1000);
+		}
+
 		// start logic iteration
 		interval = setInterval(logic, getInterval());
 
@@ -150,15 +160,13 @@ function initial() {
 function logic() {
 
 	if (isRunning) {
-		if (dotCounter == 0) {
-			nextLevel();
-		}
+		if (dotCounter == 0) nextLevel();
+
 		coughtDetection();	// does not recognize every time
 		movePlayer();
 		coughtDetection();	// too late
 		moveGhosts();
-		
-	}
+	}	
 }
 
 var now;
@@ -184,7 +192,6 @@ function draw() {
 
        	ctx.globalCompositeOperation = 'destination-over';
 		ctx.clearRect(0,0,canvas.width,canvas.height);	// clear canvas 
-		// draw backgroundImage
 
 		// game is paused
 		if (!isRunning) {
@@ -228,8 +235,8 @@ function draw() {
 			isCought = false;
 		}
 		
-		
-		 ctx.drawImage(grid.image, 
+		// draw backgroundImage
+		ctx.drawImage(grid.image, 
 	    	0, 0, grid.image.width, grid.image.height, 
 	    	0, 0, canvas.width, canvas.height);
 
@@ -237,19 +244,24 @@ function draw() {
 		drawGhosts();
 
 		// draw dots
-		var wMax = grid.x
-	    for (var w = 0; w < wMax; w++) {
-	    	var hMax = grid.y
-			for (var h = 0; h < hMax; h++) {
-				if (dots[w][h]) {
-					dot = getPixelCenter(w, h);
-					ctx.beginPath();
-				    ctx.arc(dot.x, dot.y, characterSize*0.15, 0, 2 * Math.PI);
-				    ctx.fillStyle = '#cccccc';
-				    ctx.fill();
+		try {
+			var wMax = grid.x
+		    for (var w = 0; w < wMax; w++) {
+		    	var hMax = grid.y
+				for (var h = 0; h < hMax; h++) {
+					if (dots[w][h]) {
+						dot = getPixelCenter(w, h);
+						ctx.beginPath();
+					    ctx.arc(dot.x, dot.y, characterSize*0.15, 0, 2 * Math.PI);
+					    ctx.fillStyle = '#cccccc';
+					    ctx.fill();
+					}
 				}
+				h = 0;
 			}
-			h = 0;
+		} catch (e) {
+			// do nothing
+			// not critical, just annoying
 		}	
 		
     }
@@ -408,10 +420,14 @@ function movePlayer() {
 			}
 		}
 	}
-
-	if (dots[pacman.x][pacman.y]) {
-		dotCounter--;
-		dots[pacman.x][pacman.y] = false;
+	try {
+		if (dots[pacman.x][pacman.y]) {
+			dotCounter--;
+			dots[pacman.x][pacman.y] = false;
+		}
+	} catch (e) {
+		// do nothing
+		// not critical, just annoying
 	}
 }
 
@@ -459,9 +475,9 @@ function moveGhosts() {
 			}
 		}
 
-		// with a chance of 1 to 4 the ghost will no longer chase pacman
-		if (seeInX && Math.floor(Math.random()*3) == 0) seeInX = false;
-		if (seeInY && Math.floor(Math.random()*3) == 0) seeInY = false;
+		// with a chance of 1 to 6 the ghost will no longer chase pacman
+		if (seeInX && Math.floor(Math.random()*5) == 0) seeInX = false;
+		if (seeInY && Math.floor(Math.random()*5) == 0) seeInY = false;
 
 
 		if (seeInX) {
@@ -565,6 +581,7 @@ function createDots() {
 		h = 0;
 	}
 	dotCounter = tempDotCounter;
+	quantityOfDots = dotCounter;
 }
 
 /*
@@ -609,6 +626,9 @@ function nextLevel() {
 
 	if (level == levelImages) {
 		isWon = true;
+		gameover();
+		level=0;
+		life = quantityOfLifes;
 	} else {
 		isBeginning = true;
 	}
@@ -636,9 +656,12 @@ function coughtDetection() {
 		clearInterval(interval);	// break out of loop
 		direction = 0;
 		isRunning = false;
-		if (life == 0) {
+		if (life == 0) {			// gameover
+			gameover();
+
 			life = quantityOfLifes;
 			level = 0;
+			time = 0;
 			isGameover = true;
 		} else {
 			dots = null;
@@ -692,12 +715,127 @@ function changeDirection(e) {
 }
 
 /*
- * Handling for buttons in html for small devices
+ * Handling for buttons in html for small devices.
  */
 function buttonClick(x) {
     direction = x;
 }
-
+/*
+ * This function toggles if the game is running.
+ */
 function toggleRunning() {
 	isRunning = !isRunning;
+}
+
+/*
+ * This function handles all the things by gameover
+ */
+function gameover() {
+
+	// quantity of eaten dots
+	var eatenDots = quantityOfDots-dotCounter;
+
+	// calculate factor for previous levels
+	var factorPrevLevels = level > 0 ? Math.pow(2, level) : 0;
+
+	// calculate highscore depending on dots
+	var highscore = grid.x*grid.y*factorPrevLevels+eatenDots*2*(level+1);
+
+	// extra points for every left life depending on level
+	highscore += life*(level+1)*4;
+
+	// because.
+	highscore *= 42;
+
+	// and a tick of destiny
+	highscore += Math.floor(Math.random()*2);
+
+	/* ----------------------------------------------------------------------------- */
+
+	document.getElementById("register").style.display = "table-row";
+
+	setTimeout(function () {
+		document.getElementById("showHighscore").innerHTML = highscore;
+		document.getElementById("score").value = highscore;
+
+		document.getElementById("shadowlink").click();
+	}, 500);
+
+	setTimeout(function () {
+		document.getElementById("nickname").focus();
+		if (level != levelImages) {
+			isBeginning = true;
+			isGameover = false;
+		}
+	}, 1500);
+
+	// delete cookie
+	deleteCookieValue('life');
+	deleteCookieValue('level');
+	document.getElementById("savegame").classList.remove('active');
+}
+
+/* 
+ * With this function the game gets saved to a cookie
+ */
+function savegame() {
+
+	var expireDate = new Date();
+	expireDate = new Date(expireDate.getTime()+1000*60*60*24);
+	expireDate = expireDate.toGMTString();
+
+	document.cookie = 'level='+level+'; expires='+expireDate+';';
+	document.cookie = 'life='+life+'; expires='+expireDate+';';
+
+	document.getElementById("savegame").className += " active";
+}
+
+/* 
+ * This function lets the user load a game by reading out the cookie.
+ */
+function loadgame() {
+	if (document.cookie) {
+
+		// get cookie values
+		life = getCookieValue('life');
+		level = getCookieValue('level');
+
+		// delete cookie
+		deleteCookieValue('life');
+		deleteCookieValue('level');
+		document.getElementById("savegame").classList.remove('active');
+
+		clearInterval(interval);
+		direction = 0;
+		dots = null;
+		borders = null;
+		isRunning = false;
+		isBeginning = true;
+		initial();
+	}	
+}
+
+/*
+ * This function gets a value by name from the cookie.
+ */
+function getCookieValue(name) {
+	var cookie = document.cookie;
+	name += '=';
+	var index = cookie.indexOf(name);
+	if (index != -1) {
+		var before = index+name.length;
+		var after = cookie.indexOf(';', before);
+		if (after == -1) {
+			return parseInt(cookie.substring(before, cookie.length));
+		} else {
+			return parseInt(cookie.substring(before, after));
+		}		
+	}
+}
+
+/*
+ * This deletes a cookie value by name.
+ */
+function deleteCookieValue(name) {
+	document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:01 GMT;';
 }

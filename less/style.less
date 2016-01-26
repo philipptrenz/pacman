@@ -434,17 +434,45 @@ footer {
 }
 
 #play {
-	#game-status {
-	    padding-bottom: 5px;
-	    display: inline;
-	    #lifes {
-	    	text-align: center;
-	    	i {
-			    font-size: 1.8em;
-			    padding: 0 5px 5px;
+	#game-wrapper {
+		max-width: 800px; 
+		margin: 0 auto;
+		
+		#game-status {
+		    padding-bottom: 5px;
+		    display: table;
+		    width: 100%;
+
+		    #game-options {
+				display: table-cell;
+				text-align: left;
+				button {
+					background: none;
+					border: none;
+					outline: none;
+					font-weight: 700;
+					font-size: 2em;
+				}
+				button:hover, button.active {
+					color: @brand-success;
+				}
+			}
+		    #lifes {
+		    	display: table-cell;
+		    	text-align: right;
+		    	i {
+				    font-size: 1.8em;
+				    padding: 0 5px 5px;
+				}
 			}
 		}
+
+		#game {
+			display: block; 
+			margin: 0 auto;
+		}
 	}
+
 	#controls {
 	    padding-top: 10px;
 	    margin: 0 auto;
@@ -466,6 +494,40 @@ footer {
 			    display: inline-block;
 			}
 		}
+		.control:hover {
+			background-color: @brand-success;
+		}
 	}
 }
 
+.table {
+	display: table;
+	margin: 0 auto;
+	.table-row {
+		display: table-row;
+		.table-cell {
+			display: table-cell;
+			text-align: center;
+			font-size: 20px;
+		}
+	}
+}
+
+#register {
+	form#highscore {
+		border: 1px solid white;
+		display: inline-block;
+		input#nickname {
+			background: inherit;
+			border: none;
+			text-align: center;
+		}
+		input#nickname:focus {
+			outline: none;
+		}
+		input#submit {
+			background-color: @brand-primary;
+			border: none;
+		}
+	}
+}

@@ -384,16 +384,41 @@ footer .footer-below {
   opacity: 0;
   display: none;
 }
-#play #game-status {
+#play #game-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+}
+#play #game-wrapper #game-status {
   padding-bottom: 5px;
-  display: inline;
+  display: table;
+  width: 100%;
 }
-#play #game-status #lifes {
-  text-align: center;
+#play #game-wrapper #game-status #game-options {
+  display: table-cell;
+  text-align: left;
 }
-#play #game-status #lifes i {
+#play #game-wrapper #game-status #game-options button {
+  background: none;
+  border: none;
+  outline: none;
+  font-weight: 700;
+  font-size: 2em;
+}
+#play #game-wrapper #game-status #game-options button:hover,
+#play #game-wrapper #game-status #game-options button.active {
+  color: #18BC9C;
+}
+#play #game-wrapper #game-status #lifes {
+  display: table-cell;
+  text-align: right;
+}
+#play #game-wrapper #game-status #lifes i {
   font-size: 1.8em;
   padding: 0 5px 5px;
+}
+#play #game-wrapper #game {
+  display: block;
+  margin: 0 auto;
 }
 #play #controls {
   padding-top: 10px;
@@ -416,4 +441,35 @@ footer .footer-below {
   font-size: 2.5em;
   color: #fff;
   display: inline-block;
+}
+#play #controls .control:hover {
+  background-color: #18BC9C;
+}
+.table {
+  display: table;
+  margin: 0 auto;
+}
+.table .table-row {
+  display: table-row;
+}
+.table .table-row .table-cell {
+  display: table-cell;
+  text-align: center;
+  font-size: 20px;
+}
+#register form#highscore {
+  border: 1px solid white;
+  display: inline-block;
+}
+#register form#highscore input#nickname {
+  background: inherit;
+  border: none;
+  text-align: center;
+}
+#register form#highscore input#nickname:focus {
+  outline: none;
+}
+#register form#highscore input#submit {
+  background-color: #2C3E50;
+  border: none;
 }
