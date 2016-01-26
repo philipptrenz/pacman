@@ -148,7 +148,13 @@
                                     );
 
                 if (mysqli_connect_errno($db)) {
-                    echo "Failed to connect to Database: " . mysqli_connect_error();
+                    echo "<p>Sorry, no connection to database</p>";
+                } else {
+                    mysqli_query($db, "CREATE TABLE IF NOT EXISTS 'main' (
+                                                        'id' int(11) NOT NULL, 
+                                                        'nickname' varchar(20) COLLATE utf8_bin NOT NULL, 
+                                                        'score' int(11) NOT NULL, 
+                                                        'date' timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP)");
                 }
             ?>
 
