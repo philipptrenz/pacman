@@ -139,12 +139,22 @@ function initial() {
 		// create dots on every place where no border is
 		createDots();
 
+		/* --------------------------------- */
+
 		// fix for long loading times by generating borders and dots
-		while(dots == null || borders == null) {
-			setTimeout(function() {
-				// do nothing
-			}, 1000);
-		}
+		var ready = true;
+		do {
+			for (var w = 0; w < grid.x; w++) {
+				for (var h = 0; h < grid.y; h++) {
+					if (borders[w][h] == null) ready = false;
+					if (borders[w][h] == false) {
+						if (dots[w][h] == null) ready = false;
+					}
+				}
+			}
+		} while (!ready);
+
+		/* --------------------------------- */
 
 		// start logic iteration
 		interval = setInterval(logic, getInterval());
@@ -162,9 +172,9 @@ function logic() {
 	if (isRunning) {
 		if (dotCounter == 0) nextLevel();
 
-		coughtDetection();	// does not recognize every time
+		coughtDetection();
 		movePlayer();
-		coughtDetection();	// too late
+		coughtDetection();
 		moveGhosts();
 	}	
 }

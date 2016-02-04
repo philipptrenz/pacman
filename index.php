@@ -155,7 +155,7 @@
                     
                     <?php 
                         if (mysqli_connect_errno($db)) {
-                            echo "<p>Sorry, no connection to database</p>";
+                            echo "<p>Sorry, no connection to database ...</p>";
                         } else {
                             echo("<p>Here you see the best $maxResults players for now!</p>");
                         }
@@ -227,7 +227,7 @@
 
                         for ($i = 0; $i < $maxResults; $i++) {
 
-                            
+
                             if ($row = mysqli_fetch_assoc($res)) {
                                 echo "<div class='highscore table-row'>";
                             
