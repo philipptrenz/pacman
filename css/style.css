@@ -392,25 +392,104 @@ footer .footer-below {
   padding-bottom: 5px;
   display: table;
   width: 100%;
+  height: 50px;
 }
 #play #game-wrapper #game-status #game-options {
   display: table-cell;
   text-align: left;
+  vertical-align: bottom;
 }
-#play #game-wrapper #game-status #game-options button {
+#play #game-wrapper #game-status #game-options #saveandloadbuttons {
+  display: inline;
+}
+#play #game-wrapper #game-status #game-options #saveandloadbuttons button {
   background: none;
   border: none;
   outline: none;
   font-weight: 700;
   font-size: 2em;
 }
-#play #game-wrapper #game-status #game-options button:hover,
-#play #game-wrapper #game-status #game-options button.active {
+#play #game-wrapper #game-status #game-options #saveandloadbuttons button:hover,
+#play #game-wrapper #game-status #game-options #saveandloadbuttons button.active {
+  color: #18BC9C;
+}
+#play #game-wrapper #game-status #game-options #savegameform {
+  height: 32px;
+  border: 3px solid #2C3E50;
+  /*
+					-moz-border-radius: 5px;
+				    -webkit-border-radius: 5px;
+				    border-radius: 5px;
+				    */
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+}
+#play #game-wrapper #game-status #game-options #savegameform input {
+  margin: 0;
+  padding: 0;
+  border: none;
+  outline: none;
+  text-align: center;
+  display: inline-block;
+}
+#play #game-wrapper #game-status #game-options #savegameform button {
+  height: 28px;
+  margin: 0;
+  padding: 0 7px;
+  background-color: #2C3E50;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  border: none;
+  outline: none;
+  display: inline-block;
+}
+#play #game-wrapper #game-status #game-options #loadgameform {
+  height: 32px;
+  border: 3px solid #2C3E50;
+  /*
+					-moz-border-radius: 5px;
+				    -webkit-border-radius: 5px;
+				    border-radius: 5px;
+				    */
+  background-color: #2C3E50;
+  display: inline-block;
+}
+#play #game-wrapper #game-status #game-options #loadgameform select {
+  margin-top: 1px;
+  background-color: #2C3E50;
+  color: white;
+  font-size: 1.2em;
+  font-weight: 600;
+  outline: none;
+  border: none;
+}
+#play #game-wrapper #game-status #game-options #loadgameform select option {
+  height: inherit;
+  padding: 5px 0;
+}
+#play #game-wrapper #game-status #game-options button#cancelbutton {
+  margin: 0;
+  background: none;
+  outline: none;
+  border: none;
+}
+#play #game-wrapper #game-status #game-options button#cancelbutton i {
+  font-size: 1.5em;
+}
+#play #game-wrapper #game-status #game-options button#cancelbutton:hover,
+#play #game-wrapper #game-status #game-options button#cancelbutton.active {
   color: #18BC9C;
 }
 #play #game-wrapper #game-status #lifes {
   display: table-cell;
   text-align: right;
+  vertical-align: bottom;
 }
 #play #game-wrapper #game-status #lifes i {
   font-size: 1.8em;

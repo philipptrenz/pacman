@@ -71,8 +71,10 @@
                     <img class="img-responsive" src="img/profile.png" alt="">
                     <div class="intro-text">
                         <span class="name">Pac-Man</span>
-                      
                         <span class="skills">- A HTML5 Browser Game -</span>
+
+                        <p style="font-size: 0.9em; margin: 20px auto 0; border: 2px solid white; max-width: 280px;"><i>Note: Please use <b>Google Chrome 47+</b>,<br />
+                        other browsers are currently not supported.</i></p>
                     </div>
                 </div>
             </div>
@@ -88,8 +90,25 @@
                 <div id="game-wrapper">
                     <div id="game-status">
                         <div id="game-options">
-                            <button type="button" onclick="savegame()" id="savegame"><i class="fa fa-floppy-o"></i></button>
-                            <button type="button" onclick="loadgame()" id="loadgame"><i class="fa fa-undo"></i></button>
+
+                            <div id="saveandloadbuttons">
+                                <button type="button" onclick="savenewgame()" id="savegame"><i class="fa fa-floppy-o"></i></button>
+                                <button type="button" onclick="getAllCookies()" id="loadgame"><i class="fa fa-undo"></i></button>
+                            </div>
+                            
+                            <div id="savegameform" style="display: none;">
+                                <input type="text" placeholder="Your Name" id="cookiename">
+                                <button type="button" onclick="setNewCookie()">Save</button>
+                            </div>
+
+                            <div id="loadgameform" style="display: none;">
+                                <select onchange="loadnewgame()" name= "Select" id="cookieselect"></select>
+                            </div>
+
+                            <button id="cancelbutton" onclick="closesaveorload()" style="display: none;">
+                                <i class="fa fa-times"></i>
+                            </button>
+
                         </div>
                         <div id="lifes"></div>
                     </div>
@@ -157,12 +176,12 @@
                         if (mysqli_connect_errno($db)) {
                             echo "<p>Sorry, no connection to database ...</p>";
                         } else {
-                            echo("<p>Here you see the best $maxResults players for now!</p>");
+                            echo("<p>Here you see the best $maxResults players!</p>");
                         }
 
                         mysqli_query($db, "CREATE TABLE IF NOT EXISTS `main` (
-                                            `id` int(11) NOT NULL,
-                                            `nickname` varchar(20) COLLATE utf8_bin NOT NULL,
+                                            `id` int(11) NOT NULL UNIQUE,
+                                            `nickname` varchar(12) COLLATE utf8_bin NOT NULL,
                                             `score` int(11) NOT NULL,
                                             `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
                                             )");
@@ -208,6 +227,10 @@
 
                             $name = $_POST['name'];
                             $score = $_POST['score'];
+
+                            // coorrect names
+                            if (strlen($name) == 0) $name = "anonymous";
+                            if (strlen($name) > 12) $name = substr($name, 0, 12);
 
                             $res = mysqli_query($db, "SELECT * FROM main ORDER BY score DESC");
 
@@ -278,7 +301,7 @@
                 <div class="col-lg-4">
                     <h3 style="margin-top: 0;">Controls:</h3>
                     <p>You control Pac-Man with the arrow keys on your keyboard and on mobile with <i class="fa fa-arrow-up" style="padding: 0 5px;"></i><i class="fa fa-arrow-right" style="padding: 0 5px;"></i><i class="fa fa-arrow-down" style="padding: 0 5px;"></i><i class="fa fa-arrow-left" style="padding: 0 5px;"></i>. <b>Use the spacebar</b> or <b>tab at the pitch</b> for pausing the game and skipping the messages.<br />
-                    With <i class="fa fa-floppy-o" style="padding: 0 5px;"></i> you can save your current level and your lifes, with <i class="fa fa-undo" style="padding: 0 5px;"></i> you load it again. You can save only one state at once, so choose wisely!<br />
+                    With <i class="fa fa-floppy-o" style="padding: 0 5px;"></i> you can save your current level and your lifes, with <i class="fa fa-undo" style="padding: 0 5px;"></i> you load it again.<br />
                     When you finished the game you will get to the highscore list, where you can enter your name.</p>
                 </div>
             </div>
@@ -349,21 +372,25 @@
 
 
     <!-- jQuery -->
-    <script src="js/jquery.js"></script>
+    <script src="style/jquery.js"></script>
 
     <!-- Bootstrap Core JavaScript -->
-    <script src="js/bootstrap.min.js"></script>
+    <script src="style/bootstrap.min.js"></script>
 
     <!-- Plugin JavaScript -->
-    <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    <script src="js/classie.min.js"></script>
-    <script src="js/cbpAnimatedHeader.js"></script>
+    <script src="style/jquery.easing.min.js"></script>
+    <script src="style/classie.min.js"></script>
+    <script src="style/cbpAnimatedHeader.js"></script>
 
     <!-- Custom Theme JavaScript -->
-    <script src="js/style.min.js"></script>
+    <script src="style/style.min.js"></script>
 
     <!-- Game JavaScript -->
-    <script src="js/game.js" type="text/javascript" /></script>
+    <script src="game/main.js" type="text/javascript" /></script>
+    <script src="game/logics.js" type="text/javascript" /></script>
+    <script src="game/grafics.js" type="text/javascript" /></script>
+    <script src="game/saveandload.js" type="text/javascript" /></script>
+
 
 </body>
 
