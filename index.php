@@ -96,7 +96,7 @@
                                 <button type="button" onclick="getAllCookies()" id="loadgame"><i class="fa fa-undo"></i></button>
                             </div>
                             
-                            <div id="savegameform" style="display: none;">
+                            <div id="savegameform" style="display: none;" style="min-width: 200px;">
                                 <input type="text" placeholder="Your Name" id="cookiename">
                                 <button type="button" onclick="setNewCookie()">Save</button>
                             </div>

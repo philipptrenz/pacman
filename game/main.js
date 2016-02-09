@@ -4,7 +4,7 @@ var ctx = null;
 /* --------------------------------- */
 
 var level = 0;			// start level is 0
-const levelImages = 3;	// qunantity of level graphics under img/grid
+const levelImages = 6;	// qunantity of level graphics under img/grid
 const ghostImages = 3;	// quantity of ghost graphics under img/ghosts
 const quantityOfGhosts = 3;
 
@@ -80,7 +80,7 @@ function initial() {
 		"y": 15,
 		"image": new Image()
 	};
-	grid.image.src = 'img/grid/grid'+level+'.png';
+	grid.image.src = 'img/grid/grid'+level+'.svg';
 
     /* --------------------------------- */
 
@@ -128,7 +128,7 @@ function initial() {
 
     /* --------------------------------- */
 
-    characterSize = (canvas.width/grid.x)*0.9;
+    characterSize = (canvas.width/grid.x)*0.8;
 
     // loading images is asynchronous, so it has to be
     // ensured that the following gets executed after

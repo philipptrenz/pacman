@@ -1,5 +1,6 @@
-
-
+/*
+ * This function pauses the game and shows the input field for saving.
+ */
 function savenewgame() {
     // pause game
     isRunning = false;
@@ -19,6 +20,9 @@ function savenewgame() {
     document.getElementById("cancelbutton").style.display = 'inline';
 }
 
+/*
+ * This function sets a new cookie with the entered name and the values of level and life.
+ */
 function setNewCookie() {
     // get name from savegameform
     var nickname = document.getElementById('cookiename').value;
@@ -40,6 +44,9 @@ function setNewCookie() {
     closesaveorload();
 }
 
+/*
+ * This function pauses the game, shows the select pane and loads every cookie as option to the select pane.
+ */
 function getAllCookies() {
     // pause game
     isRunning = false;
@@ -75,11 +82,12 @@ function getAllCookies() {
     var after = "</option>";
     
     select.innerHTML = before+"' style='display: none;' selected>Choose your game"+after;
-    select.innerHTML += before+"0|"+quantityOfLifes+middle+"- New game -"+after;
+    select.innerHTML += before+"0|"+quantityOfLifes+middle+"Level 1"+after;
 
     /* just for developement */
-    //select.innerHTML += before+"1|"+quantityOfLifes+middle+"Dev: Level 2"+after;
-    //select.innerHTML += before+"2|"+quantityOfLifes+middle+"Dev: Level 3"+after;
+    for (var i = 1; i < levelImages; i++) {
+        select.innerHTML += before+i+"|"+quantityOfLifes+middle+"Level "+(i+1)+after;
+    }
     /* --------------------- */
    
     for (var i = 0; i < values.length; i++) {
@@ -94,6 +102,9 @@ function getAllCookies() {
 
 }
 
+/*
+ * This function loads the game depending on the selected option from the select pane.
+ */
 function loadnewgame() {
 
     var x = document.getElementById("cookieselect");
@@ -122,6 +133,9 @@ function loadnewgame() {
     closesaveorload();
 }
 
+/*
+ * This function closes the save input field and the select pane if it is open.
+ */
 function closesaveorload() {
 	// hide savegameform
     document.getElementById("savegameform").style.display = 'none';
