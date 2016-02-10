@@ -1,10 +1,12 @@
 <?php
+	/*
+	 * This site gets the POST data from index.php and enteres it into the database.
+	 */
+
+	// redirect to index.php
 	header('Location: index.php#highscore'); 
 
     require_once ('config.php');
-
-    // defines how many results from the database will be shown.
-    $maxResults = 15;
 
     @$db = mysqli_connect(
             MYSQL_HOST, 

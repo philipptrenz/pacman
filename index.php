@@ -150,29 +150,26 @@
             <div class="page-scroll" style="display: none;">
                 <a href="#highscore" id="shadowlink"></a>
             </div>
-            
-
-            <!-- DATABASE CONNECTION-->
-            <?php
-                require_once ('config.php');
-
-                // defines how many results from the database will be shown.
-                $maxResults = 15;
-
-                @$db = mysqli_connect(
-                        MYSQL_HOST, 
-                        MYSQL_USER, 
-                        MYSQL_PASSWORD, 
-                        MYSQL_DATABASE
-                    );
-            ?>
 
             <div class="row">
                 <div class="col-lg-12 text-center">
                     <h2>Highscore</h2>
                     <hr class="star" style="max-width: 40%">
                     
+                    <!-- DATABASE CONNECTION-->
                     <?php 
+                        require_once ('config.php');
+
+                        @$db = mysqli_connect(
+                                MYSQL_HOST, 
+                                MYSQL_USER, 
+                                MYSQL_PASSWORD, 
+                                MYSQL_DATABASE
+                            );
+
+                        // defines how many results from the database will be shown.
+                        $maxResults = 15;
+
                         if (mysqli_connect_errno($db)) {
                             echo "<p>Sorry, no connection to database ...</p>";
                         } else {
@@ -180,11 +177,11 @@
                         }
 
                         mysqli_query($db, "CREATE TABLE IF NOT EXISTS `main` (
-                                            `id` int(11) NOT NULL UNIQUE,
-                                            `nickname` varchar(12) COLLATE utf8_bin NOT NULL,
-                                            `score` int(11) NOT NULL,
-                                            `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                            )");
+                            `id` int(11) NOT NULL UNIQUE,
+                            `nickname` varchar(12) COLLATE utf8_bin NOT NULL,
+                            `score` int(11) NOT NULL,
+                            `date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+                            )");
                     ?>
                             
                 </div>
@@ -214,12 +211,11 @@
                         <div class="highscore table-cell" id="showDate">today</i></div>
                     </div>
                     
+                    <!-- Get the data for the highscore list from database -->
                     <?php                       
-
                         $res = mysqli_query($db, "SELECT * FROM main ORDER BY score DESC");
 
                         for ($i = 0; $i < $maxResults; $i++) {
-
 
                             if ($row = mysqli_fetch_assoc($res)) {
                                 echo "<div class='highscore table-row'>";
