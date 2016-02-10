@@ -84,11 +84,11 @@ function getAllCookies() {
     select.innerHTML = before+"' style='display: none;' selected>Choose your game"+after;
     select.innerHTML += before+"0|"+quantityOfLifes+middle+"Level 1"+after;
 
-    /* just for developement */
+    /* just for developement *
     for (var i = 1; i < levelImages; i++) {
         select.innerHTML += before+i+"|"+quantityOfLifes+middle+"Level "+(i+1)+after;
     }
-    /* --------------------- */
+    * --------------------- */
    
     for (var i = 0; i < values.length; i++) {
         tempvalue = values[i];
