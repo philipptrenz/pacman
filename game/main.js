@@ -43,6 +43,7 @@ var quantityOfDots;
 // defines in which direction Pacman will move next.
 //0 means stop, 1 means up, 2 is right, 3 is down and 4 is left.
 var direction = 0;
+var prevDirection = direction;
 
 /*
  * This function starts the whole game.

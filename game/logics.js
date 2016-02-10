@@ -13,6 +13,7 @@ function logic() {
 	}	
 }
 
+
 /*
  * This method handles the moving of pacman depending on the key events.
  */ 
@@ -20,40 +21,14 @@ function movePlayer() {
 	pacman.prevX = pacman.x;
 	pacman.prevY = pacman.y;
 
-    // navigate
-	if (direction == 1) {
-		if (pacman.y-1 > 0) {
-			var temp = borders[pacman.x][pacman.y-1];
-			if (!temp) {
-				pacman.y--;
-				pacman.moved = true;
-			}
-		}
-	} else if (direction == 2) {
-		if (pacman.x+1 < grid.x) {
-			var temp = borders[pacman.x+1][pacman.y];
-			if (!temp) {
-				pacman.x++;
-				pacman.moved = true;
-			}
-		}
-	} else if (direction == 3) {
-		if (pacman.y+1 < grid.y) {
-			var temp = borders[pacman.x][pacman.y+1];
-			if (!temp) {
-				pacman.y++;
-				pacman.moved = true;
-			}
-		}
-	} else if (direction == 4) {
-		if (pacman.x-1 > 0) {
-			var temp = borders[pacman.x-1][pacman.y];
-			if (!temp) {
-				pacman.x--;
-				pacman.moved = true;
-			}
-		}
+
+	if (canMove(direction)) {
+		move(direction);
+		prevDirection = direction;
+	} else if (canMove(prevDirection)) {
+		move(prevDirection);
 	}
+    
 	try {
 		if (dots[pacman.x][pacman.y]) {
 			dotCounter--;
@@ -64,6 +39,61 @@ function movePlayer() {
 		// not critical, just annoying
 	}
 }
+
+/*
+ * This function checks if it is okay that pac-man moves in a direction.
+ */
+function canMove(direction) {
+
+	if (direction == 1) {
+		if (pacman.y-1 > 0 && !borders[pacman.x][pacman.y-1]) {
+			return true;
+		} else {
+			return false;
+		}
+		
+	} else if (direction == 2) {
+		if (pacman.x+1 < grid.x && !borders[pacman.x+1][pacman.y]) {
+			return true;
+		} else {
+			return false;
+		}
+	} else if (direction == 3) {
+		if (pacman.y+1 < grid.y && !borders[pacman.x][pacman.y+1]) {
+			return true;
+		} else {
+			return false;
+		}
+	} else if (direction == 4) {
+		if (pacman.x-1 > 0 && !borders[pacman.x-1][pacman.y]) {
+			return true;
+		} else {
+			return false;
+		}
+	} else {
+		return false;
+	}
+
+}
+
+/*
+ * This function lets pac-man move in the given direction.
+ */
+function move(direction) {
+	if (direction == 1) {
+		pacman.y--;
+		pacman.moved = true;
+	} else if (direction == 2) {
+		pacman.x++;
+		pacman.moved = true;
+	} else if (direction == 3) {
+		pacman.y++;
+		pacman.moved = true;
+	} else if (direction == 4) {
+		pacman.x--;
+		pacman.moved = true;
+	}
+} 
 
 /* 
  * This method lets the ghosts move in the grid.
@@ -162,6 +192,7 @@ function moveGhosts() {
 function nextLevel() {
 	clearInterval(interval);	// break out of loop
 	direction = 0;
+	prevDirection = direction;
 	dots = null;
 	borders = null;
 
@@ -198,6 +229,7 @@ function coughtDetection() {
 		life--;
 		clearInterval(interval);	// break out of loop
 		direction = 0;
+		prevDirection = direction;
 		isRunning = false;
 		if (life == 0) {			// gameover
 			gameover();
@@ -259,4 +291,14 @@ function gameover() {
 			isGameover = false;
 		}
 	}, 1500);
+}
+
+/*
+ * This function clears and hide the register form at highscore
+ */
+function closeRegister() {
+    document.getElementById("nickname").blur();
+    document.getElementById("score").value = "";
+    document.getElementById("nickname").value = "";
+    document.getElementById("register").style.display = "none";
 }

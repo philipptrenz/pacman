@@ -84,7 +84,7 @@ function getAllCookies() {
     select.innerHTML = before+"' style='display: none;' selected>Choose your game"+after;
     select.innerHTML += before+"0|"+quantityOfLifes+middle+"Level 1"+after;
 
-    /* just for developement *
+    /* Show all levels - just for developement *
     for (var i = 1; i < levelImages; i++) {
         select.innerHTML += before+i+"|"+quantityOfLifes+middle+"Level "+(i+1)+after;
     }
@@ -121,6 +121,7 @@ function loadnewgame() {
 
         clearInterval(interval);
         direction = 0;
+        prevDirection = direction;
         dots = null;
         borders = null;
         isRunning = false;

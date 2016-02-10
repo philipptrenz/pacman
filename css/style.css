@@ -552,3 +552,16 @@ footer .footer-below {
   background-color: #2C3E50;
   border: none;
 }
+#register button#cancelbutton {
+  margin: 0;
+  background: none;
+  outline: none;
+  border: none;
+}
+#register button#cancelbutton i {
+  font-size: 1.3em;
+}
+#register button#cancelbutton:hover,
+#register button#cancelbutton.active {
+  color: #2C3E50;
+}

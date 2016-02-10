@@ -160,11 +160,11 @@
                 $maxResults = 15;
 
                 @$db = mysqli_connect(
-                                     MYSQL_HOST, 
-                                     MYSQL_USER, 
-                                     MYSQL_PASSWORD, 
-                                     MYSQL_DATABASE
-                                    );
+                        MYSQL_HOST, 
+                        MYSQL_USER, 
+                        MYSQL_PASSWORD, 
+                        MYSQL_DATABASE
+                    );
             ?>
 
             <div class="row">
@@ -201,52 +201,22 @@
                     <div class="highscore table-row" id="register" style="display: none; height: 65px;">              
                         <div class="highscore table-cell">
                             <div style="display: inline; position: absolute; padding: 0 -80px;"></i></div>
-                            <form action="#highscore" method="post" id="highscore">
+                            <form action="database.php" method="post" id="highscore">
                                 <input type="text" name="name" id="nickname">
-                                <input name="score" id="score" value="none" style="visibility: hidden; position: absolute;">
-                                <input name="date" id="date" value="none" style="visibility: hidden; position: absolute;">
+                                <input name="score" id="score" value="" style="visibility: hidden; position: absolute;">
                                 <input type="submit" id="submit" value="Send">
                             </form>
-
+                            <button id="cancelbutton" onclick="closeRegister()" >
+                                <i class="fa fa-times"></i>
+                            </button>
                         </div>
                         <div class="highscore table-cell" id="showHighscore"></div>
                         <div class="highscore table-cell" id="showDate">today</i></div>
                     </div>
                     
-                    <?php
-
-
-                        if ($_POST) {
-
-                            // get max id from database
-                            $res = mysqli_query($db, "SELECT MAX(id) AS 'maxid' FROM main");
-                            $row = mysqli_fetch_assoc($res); 
-
-                            $id = 0;
-                            if ($row) $id = $row['maxid']+1;
-
-                            $name = $_POST['name'];
-                            $score = $_POST['score'];
-
-                            // coorrect names
-                            if (strlen($name) == 0) $name = "anonymous";
-                            if (strlen($name) > 12) $name = substr($name, 0, 12);
-
-                            $res = mysqli_query($db, "SELECT * FROM main ORDER BY score DESC");
-
-                            // test if theres a equal entry in the database
-                            $equalentry = false;
-                            while ($row = mysqli_fetch_assoc($res)) {
-                                if ($row['nickname'] == $name && $row['score'] == $score) $equalentry = true;
-                            }
-
-                            if (!$equalentry) mysqli_query($db, "INSERT INTO main(id, nickname, score) VALUES('$id', '$name', '$score')");
-                        }
-                        
+                    <?php                       
 
                         $res = mysqli_query($db, "SELECT * FROM main ORDER BY score DESC");
-
-                        $i = 0;
 
                         for ($i = 0; $i < $maxResults; $i++) {
 
