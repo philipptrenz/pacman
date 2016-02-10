@@ -39,7 +39,7 @@ function draw() {
 				ctx.fillText("click to restart the game", canvas.width/2, canvas.height/2*1.1);
 			}else if (isCought) {
 				ctx.font = "normal normal 700 6em Montserrat";
-				ctx.fillText("COUGHT", canvas.width/2, canvas.height/2*0.95);
+				ctx.fillText("CAUGHT", canvas.width/2, canvas.height/2*0.95);
 				ctx.font = "normal normal normal 2.4em Montserrat";
 				ctx.fillText("click to try again", canvas.width/2, canvas.height/2*1.1);
 			} else if (isWon) { 

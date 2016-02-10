@@ -113,7 +113,7 @@
                         <div id="lifes"></div>
                     </div>
 
-                    <canvas id="game" class="img-responsive" width="800" height="600" onclick="toggleRunning()"></canvas>
+                    <canvas id="game" class="img-responsive" width="800" height="600" style="max-height: 70vh;" onclick="toggleRunning()"></canvas>
                 </div>
 
                 <div id="controls" class="visible-xs visible-sm">

@@ -1,6 +1,6 @@
 <?php
 	/*
-	 * This site gets the POST data from index.php and enteres it into the database.
+	 * This site gets the POST data from index.php and enters it into the database.
 	 */
 
 	// redirect to index.php
